@@ -20,6 +20,7 @@ namespace ChatRoom
     /// </summary>
     public partial class MainWindow : Window
     {
+        //new window
         public MainWindow()
         {
             InitializeComponent();
