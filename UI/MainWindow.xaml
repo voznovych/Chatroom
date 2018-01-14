@@ -1,0 +1,68 @@
+﻿<Window x:Class="UI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:UI"
+        mc:Ignorable="d"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        
+        Title="{Binding Path=Login, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Height="350" Width="525"
+
+        Name="mainWindow"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{DynamicResource MaterialDesignFont}">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.CheckBox.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ListBox.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.PopupBox.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.RadioButton.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.TextBlock.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ToggleButton.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        </ResourceDictionary>
+    </Window.Resources>
+    
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <materialDesign:ColorZone Grid.Column="0" Mode="Light"  Padding="6" Height="100"></materialDesign:ColorZone>
+        
+        <materialDesign:ColorZone Grid.Column="1" Mode="PrimaryDark" Padding="6">
+            <DockPanel>
+                <materialDesign:PopupBox DockPanel.Dock="Right" Margin="4"
+                                Style="{StaticResource MaterialDesignMultiFloatingActionPopupBox}"
+                                PlacementMode="BottomAndAlignCentres"
+                                UnfurlOrientation="Vertical">
+                    <StackPanel>
+                        <Button ToolTip="One with custom opacity" Opacity="0.5">1</Button>
+                        <Button ToolTip="Two">2</Button>
+                        <Button ToolTip="Three">3</Button>
+                    </StackPanel>
+                </materialDesign:PopupBox>
+                <StackPanel Orientation="Horizontal">
+                    <Ellipse Height="50" Width="50">
+                        <Ellipse.Fill>
+                            <ImageBrush ImageSource="{Binding Path=Photo, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Stretch="Fill"/>
+                        </Ellipse.Fill>
+                    </Ellipse>
+                    <TextBlock VerticalAlignment="Center" Margin="16 0 0 0">Vlad Tymoshchuk</TextBlock>
+                </StackPanel>
+            </DockPanel>
+        </materialDesign:ColorZone>
+
+    </Grid>
+</Window>
