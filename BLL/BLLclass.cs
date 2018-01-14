@@ -11,7 +11,7 @@ namespace BLL
 {
     public class BLLclass
     {
-        private DALclass _dal = new DALclass();
+        private DAL.DAL _dal = new DAL.DAL();
 
         static BLLclass()
         {
