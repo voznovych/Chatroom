@@ -6,11 +6,10 @@
         xmlns:local="clr-namespace:ChatRoom"
         mc:Ignorable="d"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="350" Width="300">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
-            <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
         <Grid>
             <Grid.RowDefinitions>
@@ -18,8 +17,11 @@
                 <RowDefinition/>
             </Grid.RowDefinitions>
             <ListBox Grid.Row="1">
-                
+                    <local:UserControl1 x:Name="MyControl"></local:UserControl1>
+                <Button Click="Button_Click">Uo</Button>
+                <Button Click="Button_Click_1">Down</Button>
             </ListBox>
+            <GridSplitter></GridSplitter>
         </Grid>
     </Grid>
 </Window>
