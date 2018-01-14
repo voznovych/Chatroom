@@ -24,7 +24,14 @@ namespace DAL
         public DALclass()
         {
             _ctx = new ChatRoomContext();
+            Countries = new DALCountries(_ctx);
             Genres = new DALGenres(_ctx);
+            Messages = new DALMessages(_ctx);
+            Rooms = new DALRooms(_ctx);
+            Sexes = new DALSexes(_ctx);
+            Users = new DALUsers(_ctx);
+            UserStatuses = new DALUserStatuses(_ctx);
+            VisitInfos = new DALVisitInfos(_ctx);
         }
 
         #region User table
