@@ -38,15 +38,22 @@ namespace UI
                 switch (value)
                 {
                     case Operation.SIGN_IN:
-                        SignInButton.Style = this.FindResource("MaterialDesignRaisedDarkButton") as Style;
-                        SignUpButton.Style = this.FindResource("MaterialDesignFlatButton") as Style;
+                        SignInCard.Background = this.FindResource("PrimaryHueDarkBrush") as Brush;
+                        SignInCard.Foreground = this.FindResource("PrimaryHueDarkForegroundBrush") as Brush;
+
+                        SignUpCard.Background = this.FindResource("SecondaryAccentBrush") as Brush;
+                        SignUpCard.Foreground = this.FindResource("SecondaryAccentForegroundBrush") as Brush;
 
                         SignUpAdditionalGrid.Visibility = Visibility.Collapsed;
                         selectedOp = value;
                         break;
+
                     case Operation.SIGN_UP:
-                        SignUpButton.Style = this.FindResource("MaterialDesignRaisedDarkButton") as Style;
-                        SignInButton.Style = this.FindResource("MaterialDesignFlatButton") as Style;
+                        SignUpCard.Background = this.FindResource("PrimaryHueDarkBrush") as Brush;
+                        SignUpCard.Foreground = this.FindResource("PrimaryHueDarkForegroundBrush") as Brush;
+
+                        SignInCard.Background = this.FindResource("SecondaryAccentBrush") as Brush;
+                        SignInCard.Foreground = this.FindResource("SecondaryAccentForegroundBrush") as Brush;
 
                         SignUpAdditionalGrid.Visibility = Visibility.Visible;
                         selectedOp = value;
@@ -232,11 +239,11 @@ namespace UI
             await DialogHost.Show(sampleMessageDialog, "RootDialog");
         }
 
-        private void SignInButton_Click(object sender, RoutedEventArgs e)
+        private void CardSignIn_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             SelectedOp = Operation.SIGN_IN;
         }
-        private void SignUpButton_Click(object sender, RoutedEventArgs e)
+        private void CardSignUp_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             SelectedOp = Operation.SIGN_UP;
         }

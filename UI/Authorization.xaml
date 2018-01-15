@@ -70,17 +70,20 @@
 
             <materialDesign:ColorZone Mode="Accent"  Padding="6">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Button Name="SignInButton" Style="{StaticResource MaterialDesignRaisedDarkButton}"
-                        materialDesign:ShadowAssist.ShadowDepth="Depth3"
-                        
-                        materialDesign:RippleAssist.Feedback="CadetBlue"
-                        Margin="0 2 10 2" Click="SignInButton_Click" 
-                        >SIGN IN</Button>
-                    <Button Name="SignUpButton"  Style="{StaticResource MaterialDesignFlatButton}"
-                        materialDesign:ShadowAssist.ShadowDepth="Depth3"
-                        materialDesign:RippleAssist.Feedback="CadetBlue"
-                        Margin="10 2 0 2" Click="SignUpButton_Click"
-                        >SIGN UP</Button>
+                    <materialDesign:Card Name="SignInCard" Margin="0 0 10 0" Width="90"
+                                         Background="{DynamicResource PrimaryHueDarkBrush}"
+                                         Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}"
+                                         materialDesign:ShadowAssist.ShadowDepth="Depth2"
+                                         Padding="10" MouseLeftButtonUp="CardSignIn_MouseLeftButtonUp">
+                        <TextBlock HorizontalAlignment="Center" FontWeight="Bold">SIGN IN</TextBlock>
+                    </materialDesign:Card>
+                    <materialDesign:Card Name="SignUpCard" Margin="10 0 0 0"  Width="90"
+                                         Background="{DynamicResource SecondaryAccentBrush}"
+                                         Foreground="{DynamicResource SecondaryAccentForegroundBrush}"
+                                         materialDesign:ShadowAssist.ShadowDepth="Depth2"
+                                         Padding="10" MouseLeftButtonUp="CardSignUp_MouseLeftButtonUp">
+                        <TextBlock HorizontalAlignment="Center" FontWeight="Bold">SIGN UP</TextBlock>
+                    </materialDesign:Card>
                 </StackPanel>
             </materialDesign:ColorZone>
 
@@ -187,13 +190,13 @@
             </Grid>
 
             <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button x:Name="CancelButton" Style="{StaticResource MaterialDesignRaisedAccentButton}" Width="100"
+                <Button x:Name="CancelButton" Style="{StaticResource MaterialDesignRaisedButton}" Width="100"
                     ToolTip="Cancel operation and exit" Click="Cancel_Click" IsCancel="True" Margin="10,15,10,10"
                     materialDesign:ShadowAssist.ShadowDepth="Depth3">
                     CANCEL
                 </Button>
 
-                <Button x:Name="AcceptButton" Style="{StaticResource MaterialDesignRaisedAccentButton}" Width="100"
+                <Button x:Name="AcceptButton" Style="{StaticResource MaterialDesignRaisedButton}" Width="100"
                     ToolTip="Accept operation" Click="OK_Click" IsDefault="True" Margin="10,15,10,10"
                     materialDesign:ShadowAssist.ShadowDepth="Depth3">
                     ACCEPT
