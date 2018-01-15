@@ -16,6 +16,7 @@ namespace BLL
         LoginIsEmpty,
         NameIsEmpty,
         SurnameIsEmpty,
+        PasswordIsEmpty,
         SexIsEmpty,
     }
     public class BLLClass
@@ -127,8 +128,50 @@ namespace BLL
             {
             }
         }
-    }
 
+        public RegistrationResult Registration(string login, string name, string surname, string password, int sexId)
+        {
+            if (String.IsNullOrEmpty(login))
+            {
+                return RegistrationResult.LoginIsEmpty;
+            }
+            else if (IsLoginAlreadyExist(login))
+            {
+                return RegistrationResult.LoginIsAlreadyExist;
+            }
+            else if (String.IsNullOrEmpty(name))
+            {
+                return RegistrationResult.NameIsEmpty;
+            }
+            else if (String.IsNullOrEmpty(surname))
+            {
+                return RegistrationResult.SurnameIsEmpty;
+            }
+            else if (String.IsNullOrEmpty(password))
+            {
+                return RegistrationResult.PasswordIsEmpty;
+            }
+
+            User registeredUser = CreateUser(login, name, surname, password, sexId);
+            AddUser(registeredUser);
+
+            return RegistrationResult.Success;
+        }
+
+        private User CreateUser(string login, string name, string surname, string password, int sexId)
+        {
+            User user = new User() { Login = login, Name = name, Surname = surname, SexId = sexId };
+            user.Password = Util.GetHashString(password);
+
+            return user;
+        }
+
+        private void AddUser(User user)
+        {
+            _dal.Users.AddUser(user);
+        }
+
+    }
     #region Data-Transfer-Object class or old name POCO = wrapper classe
     public class CountryDTO
     {
