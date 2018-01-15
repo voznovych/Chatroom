@@ -9,6 +9,15 @@ using System.Threading.Tasks;
 
 namespace BLL
 {
+    public enum RegistrationResult
+    {
+        Success,
+        LoginIsAlreadyExist,
+        LoginIsEmpty,
+        NameIsEmpty,
+        SurnameIsEmpty,
+        SexIsEmpty,
+    }
     public class BLLClass
     {
         private readonly DAL.DALClass _dal;
