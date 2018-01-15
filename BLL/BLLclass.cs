@@ -174,6 +174,10 @@ namespace BLL
         {
             return _dal.Sexes.GetAll().ToList().ConvertAll(Converter.ToSexDTO);
         }
+        public IEnumerable<CountryDTO> GetAllCountries()
+        {
+            return _dal.Countries.GetAll().ToList().ConvertAll(Converter.ToCountryDTO);
+        }
     }
     #region Data-Transfer-Object class or old name POCO = wrapper classe
     public class CountryDTO
