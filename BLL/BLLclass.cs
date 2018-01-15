@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace BLL
 {
+    public enum LoginResult { Succes, InvalidLogin, InvalidPassword }
+    public enum UserStatusType { Online, DoNotDisturb, Offline }
+
     public class BLLClass
     {
         private readonly DAL.DALClass _dal;
@@ -116,6 +119,81 @@ namespace BLL
             }
             catch (Exception)
             {
+            }
+        }
+
+        private void UpdateUser()
+        {
+            _dal.Users.UpdateUser(AuthenticatedUser);
+        }
+
+        private UserStatus GetUserStatus(UserStatusType status)
+        {
+            var statuses = _dal.UserStatuses.GetAll();
+
+            switch (status)
+            {
+                case UserStatusType.Online:
+                    return statuses.First(s => s.Name == "Online");
+                case UserStatusType.DoNotDisturb:
+                    return statuses.First(s => s.Name == "Do not disturb");
+                case UserStatusType.Offline:
+                    return statuses.First(s => s.Name == "Offline");
+                default:
+                    throw new Exception("Status not found");
+            }
+        }
+
+        private void SetStatus(UserStatusType status)
+        {
+            AuthenticatedUser.StatusId = GetUserStatus(status).Id;
+            UpdateUser();
+        }
+
+        private bool IsLoginAlreadyExist(string login)
+        {
+            return _dal.Users.GetAll().FirstOrDefault(u => u.Login == login) != null;
+        }
+        private bool IsValidPassword(string login, string password)
+        {
+            return _dal.Users.GetAll().First(u => u.Login == login).Password == password;
+        }
+        private User GetUserByLoginAndPassword(string login, string password)
+        {
+            return _dal.Users.GetAll().First(u => u.Login == login && u.Password == password);
+        }
+
+        public LoginResult Login(string login, string password)
+        {
+            try
+            {
+                if (!IsLoginAlreadyExist(login))
+                    return LoginResult.InvalidLogin;
+
+                if (!IsValidPassword(login, password))
+                    return LoginResult.InvalidPassword;
+
+                AuthenticatedUser = GetUserByLoginAndPassword(login, password);
+                SetStatus(UserStatusType.Online);
+
+                return LoginResult.Succes;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public void Logout()
+        {
+            try
+            {
+                SetStatus(UserStatusType.Offline);
+                AuthenticatedUser = null;
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
     }
