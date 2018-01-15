@@ -11,7 +11,7 @@ namespace BLL
 {
     public class BLLClass
     {
-        private readonly DAL.DALClass _dal;
+        private readonly DAL.Interfaces.IDAL _dal;
         private User AuthenticatedUser { get; set; }
         static BLLClass()
         {
