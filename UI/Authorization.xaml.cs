@@ -27,7 +27,7 @@ namespace UI
     /// </summary>
     public partial class Authorization : Window
     {
-        private readonly BLLclass _bll;
+        private readonly BLLClass _bll;
         private Operation selectedOp;
 
         public Operation SelectedOp
@@ -66,7 +66,7 @@ namespace UI
         {
             InitializeComponent();
 
-            _bll = new BLLclass();
+            _bll = new BLLClass();
             DataContext = new TextFieldsViewModel();
 
             SelectedOp = Operation.SIGN_IN;

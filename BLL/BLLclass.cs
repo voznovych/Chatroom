@@ -9,14 +9,12 @@ using System.Threading.Tasks;
 
 namespace BLL
 {
-    public class BLLclass
+    public class BLLClass
     {
-        private DAL.DALClass _dal = new DAL.DALClass();
-
-        static BLLclass()
+        private readonly DAL.DALClass _dal;
+        private User AuthenticatedUser { get; set; }
+        static BLLClass()
         {
-            //Mapper.Reset();
-
             // Init AutoMapper
             Mapper.Initialize(cfg =>
             {
@@ -110,81 +108,16 @@ namespace BLL
 
             });
         }
-
-        #region User table
-        public UserDTO AddUser(UserDTO user)
+        public BLLClass()
         {
-            return Converter.ToUserDTO(_dal.AddUser(Converter.ToUser(user)));
+            try
+            {
+                _dal = new DALClass();
+            }
+            catch (Exception)
+            {
+            }
         }
-
-        public IEnumerable<UserDTO> GetAllUsers()
-        {
-            return _dal.GetAllUsers().ToList().ConvertAll(Converter.ToUserDTO);
-        }
-
-        public bool IsLoginExist(string login)
-        {
-            return _dal.IsLoginExist(login);
-        }
-
-        public UserDTO GetUserByLoginAndPassword(string login, string password)
-        {
-            return Converter.ToUserDTO(_dal.GetUserByLoginAndPassword(login, password));
-        }
-
-        public void SetOfflineStatus(int userId)
-        {
-            _dal.SetOfflineStatus(userId);
-        }
-        public void SetDoNotDisturbStatus(int userId)
-        {
-            _dal.SetDoNotDisturbStatus(userId);
-        }
-        public void SetOnlineStatus(int userId)
-        {
-            _dal.SetOnlineStatus(userId);
-        }
-        #endregion
-
-        #region Sex table
-        public IEnumerable<SexDTO> GetAllSexes()
-        {
-            return _dal.GetAllSexes().ToList().ConvertAll(Converter.ToSexDTO);
-            //return Mapper.Map<IQueryable<Sex>, IList<SexDTO>>(_dal.GetAllSexes());
-        }
-
-        public SexDTO GetSex(string name)
-        {
-            return Converter.ToSexDTO(_dal.GetSex(name));
-        }
-        #endregion
-
-        #region Country table
-        public IEnumerable<CountryDTO> GetAllCountries()
-        {
-            return _dal.GetAllCountries().ToList().ConvertAll(Converter.ToCountryDTO);
-            //return Mapper.Map<IQueryable<Sex>, IList<SexDTO>>(_dal.GetAllSexes());
-        }
-        #endregion
-
-        #region Genre table
-        public IEnumerable<GenreDTO> GetAllGenres()
-        {
-            return _dal.GetAllGenres().ToList().ConvertAll(Converter.ToGenreDTO);
-        }
-        #endregion
-
-        #region UserStatus table
-        public IEnumerable<UserStatusDTO> GetAllStatuses()
-        {
-            return _dal.GetAllStatuses().ToList().ConvertAll(Converter.ToUserStatusDTO);
-        }
-
-        public UserStatusDTO GetOfflineUserStatus()
-        {
-            return Converter.ToUserStatusDTO(_dal.GetOfflineUserStatus());
-        }
-        #endregion
     }
 
     #region Data-Transfer-Object class or old name POCO = wrapper classe

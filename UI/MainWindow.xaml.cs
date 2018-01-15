@@ -24,9 +24,9 @@ namespace UI
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly BLLclass _bll = new BLLclass();
+        private readonly BLLClass _bll = new BLLClass();
 
-        public MainWindow(BLLclass bll)
+        public MainWindow(BLLClass bll)
         {
             InitializeComponent();
             _bll = bll;
