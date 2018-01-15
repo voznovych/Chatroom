@@ -8,7 +8,7 @@ using DAL.DAL_Enteties;
 
 namespace DAL
 {
-    public class DAL : IDAL
+    public class DALClass : IDAL
     {
         private readonly ChatRoomContext _ctx;
 
@@ -21,7 +21,7 @@ namespace DAL
         public IDALUserStatuses UserStatuses { get ; }
         public IDALVisitInfos VisitInfos { get ; }
 
-        public DAL()
+        public DALClass()
         {
             _ctx = new ChatRoomContext();
             Countries = new DALCountries(_ctx);
