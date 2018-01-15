@@ -129,7 +129,8 @@ namespace BLL
             }
         }
 
-        public RegistrationResult Registration(string login, string name, string surname, string password, int sexId)
+        public RegistrationResult Registration(string login, string password, string name, string surname, 
+                                                DateTime birthDate, int sexId)
         {
             if (String.IsNullOrEmpty(login))
             {
@@ -139,6 +140,10 @@ namespace BLL
             {
                 return RegistrationResult.LoginIsAlreadyExist;
             }
+            else if (String.IsNullOrEmpty(password))
+            {
+                return RegistrationResult.PasswordIsEmpty;
+            }
             else if (String.IsNullOrEmpty(name))
             {
                 return RegistrationResult.NameIsEmpty;
@@ -147,20 +152,24 @@ namespace BLL
             {
                 return RegistrationResult.SurnameIsEmpty;
             }
-            else if (String.IsNullOrEmpty(password))
-            {
-                return RegistrationResult.PasswordIsEmpty;
-            }
 
-            User registeredUser = CreateUser(login, name, surname, password, sexId);
+            User registeredUser = CreateUser(login, password, name, surname, birthDate, sexId);
             AddUser(registeredUser);
 
             return RegistrationResult.Success;
         }
 
-        private User CreateUser(string login, string name, string surname, string password, int sexId)
+        private User CreateUser(string login, string password, string name, string surname,
+                                 DateTime birthDate, int sexId)
         {
-            User user = new User() { Login = login, Name = name, Surname = surname, SexId = sexId };
+            User user = new User()
+            {
+                Login = login,
+                Name = name,
+                Surname = surname,
+                SexId = sexId,
+                DateOfBirth = birthDate
+            };
             user.Password = Util.GetHashString(password);
 
             return user;

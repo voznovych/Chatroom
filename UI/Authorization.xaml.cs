@@ -119,8 +119,8 @@ namespace UI
             {
                 // reauired fields
                 var login = LoginTextBox.Text;
-                var password = Util.GetHashString(PasswordBox.Password);
-                var confirmedPassword = Util.GetHashString(ConfirmedPasswordBox.Password);
+                var password = PasswordBox.Password;
+                var confirmedPassword = ConfirmedPasswordBox.Password;
                 var name = FirstNameTextBox.Text;
                 var surname = LastNameTextBox.Text;
                 var dateOfBirth = DateOfBirthPicker.SelectedDate;
