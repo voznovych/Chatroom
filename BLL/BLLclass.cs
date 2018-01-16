@@ -13,6 +13,49 @@ namespace BLL
     {
         private readonly DAL.Interfaces.IDAL _dal;
         private User AuthenticatedUser { get; set; }
+
+        #region Messages feature
+
+        public IEnumerable<Message> GetMessagesOfRoom(int RoomId)
+        {
+            return _dal.Messages.GetAll().Where(m => m.RoomId == RoomId);
+        }
+
+        public IEnumerable<Message>GetLastPackOfMessages(int RoomId, int AmountOfMsgs)
+        {
+            var msgs = _dal.Messages.GetAll().Where(m => m.RoomId == RoomId);
+            int count = msgs.Count();
+            if(count > AmountOfMsgs)
+            {
+                msgs = msgs.Skip(count - AmountOfMsgs);
+            }
+            return msgs;
+        }
+
+        public IEnumerable<Message> GetNPackOfMessages(int RoomId, int NumberofPack, int AmountOfMsgsInPack)
+        {
+            var msgs = _dal.Messages.GetAll().Where(m => m.RoomId == RoomId);
+            int count = msgs.Count();
+            if(count < NumberofPack * AmountOfMsgsInPack - AmountOfMsgsInPack)
+            {
+                msgs = null;
+            }
+            else
+            {
+                msgs = msgs.Skip(NumberofPack * AmountOfMsgsInPack - AmountOfMsgsInPack).Take(AmountOfMsgsInPack);
+            }
+            return msgs;
+        }
+
+        public IEnumerable<Message> GetNewMessages(int RoomId)
+        {
+            var msgs = _dal.Messages.GetAll().Where(m => m.RoomId == RoomId);
+            var lastVisit = _dal.VisitInfos.GetAll().Where(vi => vi.RoomId == RoomId && vi.UserId == AuthenticatedUser.Id).LastOrDefault().LastDateOfVisit;
+            return msgs.SkipWhile(m => m.DateOfSend < lastVisit);
+        }
+
+        #endregion
+
         static BLLClass()
         {
             // Init AutoMapper
@@ -119,6 +162,8 @@ namespace BLL
             }
         }
     }
+
+   
 
     #region Data-Transfer-Object class or old name POCO = wrapper classe
     public class CountryDTO
