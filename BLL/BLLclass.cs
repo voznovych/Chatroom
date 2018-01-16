@@ -22,7 +22,7 @@ namespace BLL
             {
                 throw new Exception("Room couldn't be founded!");
             }
-            return _dal.Messages.GetAll().Where(m => m.RoomId == RoomId);
+            return _dal.Messages.GetAll().Where(m => m.RoomId == RoomId).OrderBy(m => m.DateOfSend);
         }
 
         public IEnumerable<Message> GetLastPackOfMessages(int RoomId, int AmountOfMsgs)
@@ -46,7 +46,7 @@ namespace BLL
             {
                 throw new Exception("Room couldn't be founded!");
             }
-            var msgs = _dal.Messages.GetAll().Where(m => m.RoomId == RoomId);
+            IEnumerable<Message> msgs = _dal.Messages.GetAll().Where(m => m.RoomId == RoomId).OrderBy(m => m.DateOfSend);
             int count = msgs.Count();
             if (count < NumberofPack * AmountOfMsgsInPack - AmountOfMsgsInPack)
             {
@@ -65,8 +65,8 @@ namespace BLL
             {
                 throw new Exception("Room couldn't be founded!");
             }
-            var msgs = _dal.Messages.GetAll().Where(m => m.RoomId == RoomId);
-            var lastVisit = _dal.VisitInfos.GetAll().Where(vi => vi.RoomId == RoomId && vi.UserId == AuthenticatedUser.Id).LastOrDefault().LastDateOfVisit;
+            var msgs = _dal.Messages.GetAll().Where(m => m.RoomId == RoomId).OrderBy(m => m.DateOfSend).OrderBy(m => m.DateOfSend);
+            var lastVisit = _dal.VisitInfos.GetAll().FirstOrDefault(vi => vi.RoomId == RoomId && vi.UserId == AuthenticatedUser.Id).LastDateOfVisit;
             return msgs.SkipWhile(m => m.DateOfSend < lastVisit);
         }
 
