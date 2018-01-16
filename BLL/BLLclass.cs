@@ -108,6 +108,73 @@ namespace BLL
 
             });
         }
+
+        #region Get rooms feature
+        public class RoomInfo
+        {
+            public Message LastMessege { get; set; }
+            public Room Room { get; set; }
+            public int AmountOfUnreadedMsgs { get; set; }
+
+        }
+
+        public IEnumerable<RoomInfo> GetInfosAboutAllUserRooms()
+        {
+            //return _dal.Rooms.GetAll().Where(r => r.Users.Contains(AuthenticatedUser)).ToList();
+            return _dal.Users.GetAll().Where(u => u.Id == AuthenticatedUser.Id).FirstOrDefault().
+                Rooms.Select(r => new RoomInfo
+                {
+                    Room = r,
+                    AmountOfUnreadedMsgs = GetAmountOfUnreadedMessages(r.Id),
+                    LastMessege = _dal.Messages.GetAll().Where(m => m.RoomId == r.Id).LastOrDefault()
+                });
+        }
+
+        public IEnumerable<RoomInfo> GetInfosAboutAllUserRooms(int UserId)
+        {
+            //return _dal.Rooms.GetAll().Where(r => r.Users.Contains(AuthenticatedUser));
+            return _dal.Users.GetAll().Where(u => u.Id == UserId).FirstOrDefault().
+                Rooms.Select(r => new RoomInfo
+                {
+                    Room = r,
+                    AmountOfUnreadedMsgs = GetAmountOfUnreadedMessages(r.Id),
+                    LastMessege = _dal.Messages.GetAll().Where(m => m.RoomId == r.Id).LastOrDefault()
+                });
+        }
+
+
+
+        public IEnumerable<Room> GetAllUserRooms(int UserId)
+        {
+            //return _dal.Rooms.GetAll().Where(r => r.Users.Contains(AuthenticatedUser));
+            return _dal.Users.GetAll().Where(u => u.Id == UserId).FirstOrDefault().Rooms;
+        }
+
+        public IEnumerable<Room> GetAllUserRooms()
+        {
+            //return _dal.Rooms.GetAll().Where(r => r.Users.Contains(AuthenticatedUser)).ToList();
+            return _dal.Users.GetAll().Where(u => u.Id == AuthenticatedUser.Id).FirstOrDefault().Rooms;
+        }
+
+        public int GetAmountOfUnreadedMessages(int RoomId)
+        {
+            var lastDateOfVisisit = _dal.VisitInfos.GetAll().Where(inf => inf.RoomId == RoomId && inf.UserId == AuthenticatedUser.Id).First().LastDateOfVisit;
+            return _dal.Messages.GetAll().Where(m => m.RoomId == RoomId && m.DateOfSend > lastDateOfVisisit).Count();
+        }
+
+
+        public int GetAmountOfUnreadedMessages(int RoomId, int UserId)
+        {
+            var lastDateOfVisisit = _dal.VisitInfos.GetAll().Where(inf => inf.RoomId == RoomId && inf.UserId == UserId).First().LastDateOfVisit;
+            return _dal.Messages.GetAll().Where(m => m.RoomId == RoomId && m.DateOfSend > lastDateOfVisisit).Count();
+        }
+
+        public Message GetLastMessage(int RoomId)
+        {
+            return _dal.Messages.GetAll().Where(m => m.RoomId == RoomId).LastOrDefault();
+        }
+        #endregion
+
         public BLLClass()
         {
             try
