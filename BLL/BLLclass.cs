@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using BLL.DBO_Enteties;
+using DAL.Interfaces;
 
 namespace BLL
 {
@@ -30,7 +31,7 @@ namespace BLL
         private const string STATUS_OFFLINE = "Offline";
         private const string STATUS_DND = "Do not disturb";
 
-        private readonly DAL.DALClass _dal;
+        private readonly IDAL _dal;
         private string LoginPattern { get; set; } = @"^[a-zA-Z]\w{5,19}$";
         private string PasswordPattern { get; set; } = @"\w{6,25}";
 
