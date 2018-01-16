@@ -6,6 +6,8 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
+using BLL.DBO_Enteties;
 
 namespace BLL
 {
@@ -13,15 +15,25 @@ namespace BLL
     {
         Success,
         LoginIsAlreadyExist,
-        LoginIsEmpty,
-        NameIsEmpty,
-        SurnameIsEmpty,
-        PasswordIsEmpty,
-        SexIsEmpty,
+        LoginIsInvalidOrEmpty,
+        NameIsInvalidOrEmpty,
+        SurnameIsInvalidOrEmpty,
+        PasswordIsInvalidOrEmpty,
+        BirthDateIsInvalidOrNotSelected,
+        SexIsInvalidOrNotSelected,
     }
+    
     public class BLLClass
     {
+        const int HUNDRED_YEARS_BEFORE = -100;
+        private const string STATUS_ONLINE = "Online";
+        private const string STATUS_OFFLINE = "Offline";
+        private const string STATUS_DND = "Do not disturb";
+
         private readonly DAL.DALClass _dal;
+        private string LoginPattern { get; set; } = @"^[a-zA-Z]\w{5,19}$";
+        private string PasswordPattern { get; set; } = @"\w{6,25}";
+
         private User AuthenticatedUser { get; set; }
         static BLLClass()
         {
@@ -129,38 +141,84 @@ namespace BLL
             }
         }
 
-        public RegistrationResult Registration(string login, string password, string name, string surname, 
-                                                DateTime birthDate, int sexId)
+        public RegistrationResult SignUp(SignUpUserData data)
         {
-            if (String.IsNullOrEmpty(login))
+            if (!IsValidLogin(data.Login))
             {
-                return RegistrationResult.LoginIsEmpty;
+                return RegistrationResult.LoginIsInvalidOrEmpty;
             }
-            else if (IsLoginAlreadyExist(login))
+            else if (IsLoginExist(data.Login))
             {
                 return RegistrationResult.LoginIsAlreadyExist;
             }
-            else if (String.IsNullOrEmpty(password))
+            else if (!IsValidPassword(data.Password))
             {
-                return RegistrationResult.PasswordIsEmpty;
+                return RegistrationResult.PasswordIsInvalidOrEmpty;
             }
-            else if (String.IsNullOrEmpty(name))
+            else if (!IsValidName(data.Name))
             {
-                return RegistrationResult.NameIsEmpty;
+                return RegistrationResult.NameIsInvalidOrEmpty;
             }
-            else if (String.IsNullOrEmpty(surname))
+            else if (!IsValidName(data.Surname))
             {
-                return RegistrationResult.SurnameIsEmpty;
+                return RegistrationResult.SurnameIsInvalidOrEmpty;
+            }
+            else if(!data.BirthDate.HasValue || !IsValidBirthDate(data.BirthDate.Value))
+            {
+                return RegistrationResult.BirthDateIsInvalidOrNotSelected;
+            }
+            else if(!IsValidSex(data.Sex))
+            {
+                return RegistrationResult.SexIsInvalidOrNotSelected;
             }
 
-            User registeredUser = CreateUser(login, password, name, surname, birthDate, sexId);
+            User registeredUser = CreateUser(data.Login, data.Password, data.Name, data.Surname, data.BirthDate.Value, 
+                                                data.Sex.Id, data.Country?.Id);
             AddUser(registeredUser);
 
             return RegistrationResult.Success;
         }
+        private bool IsValidLogin(string login)
+        {
+            return !String.IsNullOrEmpty(login) && Regex.IsMatch(login, LoginPattern);
+        }
+        private bool IsValidName(string name)
+        {
+            return !String.IsNullOrEmpty(name);
+        }
+        private bool IsValidSurname(string surname)
+        {
+            return !String.IsNullOrEmpty(surname);
+        }
+        private bool IsValidPassword(string password)
+        {
+            return !String.IsNullOrEmpty(password) && Regex.IsMatch(password, PasswordPattern);
+        }
+        private bool IsValidBirthDate(DateTime birthDate)
+        {
+            return birthDate < DateTime.UtcNow && birthDate > DateTime.UtcNow.AddYears(HUNDRED_YEARS_BEFORE);
+        }
+        private bool IsValidSex(SexDTO sex)
+        {
+            if (sex == null)
+            {
+                return false;
+            }
+
+            return IsSexExist(sex.Id);
+        }
+        private bool IsSexExist(int id)
+        {
+            return _dal.Sexes.GetAll().FirstOrDefault(s => s.Id == id) != null;
+
+        }
+        private bool IsLoginExist(string login)
+        {
+            return _dal.Users.GetAll().FirstOrDefault(u => u.Login == login) != null;
+        }
 
         private User CreateUser(string login, string password, string name, string surname,
-                                 DateTime birthDate, int sexId)
+                                    DateTime? birthDate, int sexId, int? countryId)
         {
             User user = new User()
             {
@@ -168,13 +226,21 @@ namespace BLL
                 Name = name,
                 Surname = surname,
                 SexId = sexId,
-                DateOfBirth = birthDate
+                DateOfBirth = birthDate,
             };
+            if(countryId.HasValue)
+            {
+                user.CountryId = countryId.Value;
+            }
+            user.StatusId = GetUserStatusId(STATUS_OFFLINE);
             user.Password = Util.GetHashString(password);
 
             return user;
         }
-
+        private int GetUserStatusId(string status)
+        {
+            return _dal.UserStatuses.GetAll().FirstOrDefault(s => s.Name == status).Id;
+        }
         private void AddUser(User user)
         {
             _dal.Users.AddUser(user);
@@ -185,7 +251,7 @@ namespace BLL
         }
         public IEnumerable<CountryDTO> GetAllCountries()
         {
-            return _dal.Countries.GetAll().ToList().ConvertAll(Converter.ToCountryDTO);
+            return _dal.Countries.GetAll().OrderBy(c=>c.Name).ToList().ConvertAll(Converter.ToCountryDTO);
         }
     }
     #region Data-Transfer-Object class or old name POCO = wrapper classe
