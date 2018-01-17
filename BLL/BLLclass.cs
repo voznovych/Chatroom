@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
-using BLL.DBO_Enteties;
+using BLL;
 using DAL.Interfaces;
 
 namespace BLL
@@ -166,21 +166,21 @@ namespace BLL
 
         public LoginResult Login(string login, string password)
         {
-                if (!IsLoginExist(login))
-                {
-                  return LoginResult.InvalidLogin;
-                }
-                    
+            if (!IsLoginExist(login))
+            {
+                return LoginResult.InvalidLogin;
+            }
 
-                if (!IsPasswordRight(login, password))
-                {
-                  return LoginResult.InvalidPassword;
-                }
 
-                AuthenticatedUser = GetUserByLoginAndPassword(login, password);
-                AuthenticatedUser.UserStatus.Id = GetUserStatusId(STATUS_ONLINE);
+            if (!IsPasswordRight(login, password))
+            {
+                return LoginResult.InvalidPassword;
+            }
 
-                return LoginResult.Succes;
+            AuthenticatedUser = GetUserByLoginAndPassword(login, password);
+            AuthenticatedUser.StatusId = GetUserStatusId(STATUS_ONLINE);
+
+            return LoginResult.Succes;
         }
 
         public bool SendMessage(int roomId, string text)
@@ -201,10 +201,10 @@ namespace BLL
 
         public void Logout()
         {
-                AuthenticatedUser.UserStatus.Id = GetUserStatusId(STATUS_OFFLINE);
-                AuthenticatedUser = null;
+            AuthenticatedUser.StatusId = GetUserStatusId(STATUS_OFFLINE);
+            AuthenticatedUser = null;
         }
-      
+
         public RegistrationResult SignUp(SignUpUserData data)
         {
             if (!IsValidLogin(data.Login))
@@ -227,16 +227,16 @@ namespace BLL
             {
                 return RegistrationResult.SurnameIsInvalidOrEmpty;
             }
-            else if(!data.BirthDate.HasValue || !IsValidBirthDate(data.BirthDate.Value))
+            else if (!data.BirthDate.HasValue || !IsValidBirthDate(data.BirthDate.Value))
             {
                 return RegistrationResult.BirthDateIsInvalidOrNotSelected;
             }
-            else if(!IsValidSex(data.Sex))
+            else if (!IsValidSex(data.Sex))
             {
                 return RegistrationResult.SexIsInvalidOrNotSelected;
             }
 
-            User registeredUser = CreateUser(data.Login, data.Password, data.Name, data.Surname, data.BirthDate.Value, 
+            User registeredUser = CreateUser(data.Login, data.Password, data.Name, data.Surname, data.BirthDate.Value,
                                                 data.Sex.Id, data.Country?.Id);
             AddUser(registeredUser);
 
@@ -292,7 +292,7 @@ namespace BLL
                 SexId = sexId,
                 DateOfBirth = birthDate,
             };
-            if(countryId.HasValue)
+            if (countryId.HasValue)
             {
                 user.CountryId = countryId.Value;
             }
@@ -315,10 +315,11 @@ namespace BLL
         }
         public IEnumerable<CountryDTO> GetAllCountries()
         {
-            return _dal.Countries.GetAll().OrderBy(c=>c.Name).ToList().ConvertAll(Converter.ToCountryDTO);
+            return _dal.Countries.GetAll().OrderBy(c => c.Name).ToList().ConvertAll(Converter.ToCountryDTO);
         }
 
 
+    }
 
     #region Data-Transfer-Object class or old name POCO = wrapper classe
     public class CountryDTO

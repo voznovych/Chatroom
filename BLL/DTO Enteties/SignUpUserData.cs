@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BLL.DBO_Enteties
+namespace BLL
 {
     public class SignUpUserData
     {
