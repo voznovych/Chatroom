@@ -386,7 +386,6 @@ namespace BLL
         }
 
     }
-    }
 
     #region Data-Transfer-Object class or old name POCO = wrapper classe
     public class CountryDTO
