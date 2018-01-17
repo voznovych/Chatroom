@@ -318,7 +318,74 @@ namespace BLL
             return _dal.Countries.GetAll().OrderBy(c => c.Name).ToList().ConvertAll(Converter.ToCountryDTO);
         }
 
+        public class RoomInfo
+        {
+            public int RoomId { get; set; }
+            public string RoomName { get; set; }
+            public Image RoomAvatar { get; set; }
+            public MessageInfo LastMessage { get; set; }
+            public int AmountOfUnreadedMsgs { get; set; }
+        }
 
+        public class MessageInfo
+        {
+            public string Message { get; set; }
+            public DateTime TimeOfLastMessage { get; set; }
+            public string Sender { get; set; }
+        }
+
+        private bool RoomExists(int RoomId)
+        {
+            return _dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Count() != 0;
+        }
+
+        private bool UserExists(int UserId)
+        {
+            return _dal.Users.GetAll().SkipWhile(u => u.Id != UserId).Count() != 0;
+        }
+
+        public IEnumerable<RoomInfo> GetInfosAboutAllUserRooms()
+        {
+            return _dal.Users.GetAll().First(u => u.Id == AuthenticatedUser.Id).
+                Rooms.Select(r => new RoomInfo
+                {
+                    RoomId = r.Id,
+                    AmountOfUnreadedMsgs = GetAmountOfUnreadedMessages(r.Id),
+                    RoomAvatar = Util.ByteArrayToImage(r.Photo),
+                    RoomName = r.Name,
+                    LastMessage = GetInfoAboutMessage(GetLastMessage(r.Id))
+                });
+        }
+
+        private int GetAmountOfUnreadedMessages(int RoomId)
+        {
+            if (RoomExists(RoomId))
+            {
+                throw new Exception("Room cannot be found!");
+            }
+            var lastDateOfVisisit = _dal.VisitInfos.GetAll().First(inf => inf.RoomId == RoomId && inf.UserId == AuthenticatedUser.Id).LastDateOfVisit;
+            return _dal.Messages.GetAll().Where(m => m.RoomId == RoomId && m.DateOfSend > lastDateOfVisisit).Count();
+        }
+
+        private MessageInfo GetInfoAboutMessage(Message msg)
+        {
+            return new MessageInfo {
+                Message = msg.Text,
+                Sender = msg.User.Surname + ' ' + msg.User.Name,
+                TimeOfLastMessage = msg.DateOfSend
+            };
+        }
+
+        private Message GetLastMessage(int RoomId)
+        {
+            if (RoomExists(RoomId))
+            {
+                throw new Exception("Room cannot be found!");
+            }
+            return _dal.Messages.GetAll().OrderBy(m => m.DateOfSend).LastOrDefault(m => m.RoomId == RoomId);
+        }
+
+    }
     }
 
     #region Data-Transfer-Object class or old name POCO = wrapper classe
