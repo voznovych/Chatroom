@@ -43,6 +43,65 @@ namespace BLL
         private string PasswordPattern { get; set; } = @"\w{6,25}";
 
         private User AuthenticatedUser { get; set; }
+
+        #region Messages feature
+
+        public IEnumerable<Message> GetMessagesOfRoom(int RoomId)
+        {
+            if(_dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Count() == 0)
+            {
+                throw new Exception("Room couldn't be founded!");
+            }
+            return _dal.Messages.GetAll().Where(m => m.RoomId == RoomId).OrderBy(m => m.DateOfSend);
+        }
+
+        public IEnumerable<Message> GetLastPackOfMessages(int RoomId, int AmountOfMsgs)
+        {
+            if (_dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Count() == 0)
+            {
+                throw new Exception("Room couldn't be founded!");
+            }
+            IEnumerable<Message> msgs = _dal.Messages.GetAll().Where(m => m.RoomId == RoomId).OrderBy(m => m.DateOfSend);
+            int count = msgs.Count();
+            if (count > AmountOfMsgs)
+            {
+                msgs = msgs.Skip(count - AmountOfMsgs);
+            }
+            return msgs;
+        }
+
+        public IEnumerable<Message> GetNPackOfMessages(int RoomId, int NumberofPack, int AmountOfMsgsInPack)
+        {
+            if (_dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Count() == 0)
+            {
+                throw new Exception("Room couldn't be founded!");
+            }
+            IEnumerable<Message> msgs = _dal.Messages.GetAll().Where(m => m.RoomId == RoomId).OrderBy(m => m.DateOfSend);
+            int count = msgs.Count();
+            if (count < NumberofPack * AmountOfMsgsInPack - AmountOfMsgsInPack)
+            {
+                msgs = null;
+            }
+            else
+            {
+                msgs = msgs.Skip(NumberofPack * AmountOfMsgsInPack - AmountOfMsgsInPack).Take(AmountOfMsgsInPack);
+            }
+            return msgs;
+        }
+
+        public IEnumerable<Message> GetNewMessages(int RoomId)
+        {
+            if (_dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Count() == 0)
+            {
+                throw new Exception("Room couldn't be founded!");
+            }
+            var msgs = _dal.Messages.GetAll().Where(m => m.RoomId == RoomId).OrderBy(m => m.DateOfSend).OrderBy(m => m.DateOfSend);
+            var lastVisit = _dal.VisitInfos.GetAll().FirstOrDefault(vi => vi.RoomId == RoomId && vi.UserId == AuthenticatedUser.Id).LastDateOfVisit;
+            return msgs.SkipWhile(m => m.DateOfSend < lastVisit);
+        }
+
+        #endregion
+
         static BLLClass()
         {
             // Init AutoMapper
