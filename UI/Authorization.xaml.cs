@@ -17,6 +17,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using BLL.DBO_Enteties;
 
 namespace UI
 {
@@ -61,7 +62,7 @@ namespace UI
                 }
             }
         }
-        /*
+
         public Authorization()
         {
             InitializeComponent();
@@ -84,127 +85,73 @@ namespace UI
         }
         private bool IsSetedRequiredFieldsForSignUp()
         {
-            return IsSetedRequiredFieldsForSignIn() // is seted sign in fields
-                && !String.IsNullOrEmpty(ConfirmedPasswordBox.Password) // is seted confirmed password
-                && !String.IsNullOrEmpty(FirstNameTextBox.Text) // is seted first name
-                && !String.IsNullOrEmpty(LastNameTextBox.Text) // is seted last name
-                && SexComboBox.SelectedIndex != -1; // is seted sex
+            return !String.IsNullOrEmpty(LoginTextBox.Text)
+                && !String.IsNullOrEmpty(PasswordBox.Password)
+                && !String.IsNullOrEmpty(ConfirmedPasswordBox.Password)
+                && !String.IsNullOrEmpty(FirstNameTextBox.Text)
+                && !String.IsNullOrEmpty(LastNameTextBox.Text)
+                && SexComboBox.SelectedIndex != -1
+                && DateOfBirthPicker.SelectedDate != null;
         }
 
-        private void OpenChat(UserDTO user)
+        private void SignUp()
         {
-            MainWindow chat = new MainWindow(_bll);
-
-            chat.Loaded += (send, k) =>
+            if (!IsSetedRequiredFieldsForSignUp())
             {
-                _bll.SetOnlineStatus(user.Id);
+                ShowSampleMessageDialog("Some of required fields are not setted!");
+            }
+
+            if (PasswordBox.Password != ConfirmedPasswordBox.Password)
+            {
+                ShowSampleMessageDialog("Passwords don't match");
+            }
+
+            SignUpUserData registrationData = new SignUpUserData()
+            {
+                Login = LoginTextBox.Text,
+                Password = PasswordBox.Password,
+                Name = FirstNameTextBox.Text,
+                Surname = LastNameTextBox.Text,
+                BirthDate = DateOfBirthPicker.SelectedDate.Value,
+                Sex = SexComboBox.SelectedItem as SexDTO,
+                Country = CountryComboBox.SelectedItem as CountryDTO
             };
 
-            chat.Closed += (send, k) =>
+            RegistrationResult result = _bll.SignUp(registrationData);
+
+            switch (result)
             {
-                _bll.SetOfflineStatus(user.Id);
-
-                var authorization = new Authorization();
-                authorization.Show();
-            };
-
-            chat.Show();
-            this.Close();
+                case RegistrationResult.Success:
+                    SignIn();
+                    break;
+                case RegistrationResult.LoginIsAlreadyExist:
+                    ShowSampleMessageDialog("Login is already exist!");
+                    break;
+                case RegistrationResult.LoginIsInvalidOrEmpty:
+                    ShowSampleMessageDialog("Login is invalid or empty!");
+                    break;
+                case RegistrationResult.NameIsInvalidOrEmpty:
+                    ShowSampleMessageDialog("Name is invalid or empty!");
+                    break;
+                case RegistrationResult.SurnameIsInvalidOrEmpty:
+                    ShowSampleMessageDialog("Surname is invalid or empty!");
+                    break;
+                case RegistrationResult.PasswordIsInvalidOrEmpty:
+                    ShowSampleMessageDialog("Password is invalid or empty!");
+                    break;
+                case RegistrationResult.SexIsInvalidOrNotSelected:
+                    ShowSampleMessageDialog("Sex is not selected!");
+                    break;
+                case RegistrationResult.BirthDateIsInvalidOrNotSelected:
+                    ShowSampleMessageDialog("Date of birth is invalid or not selected!");
+                    break;
+            }
         }
-
-        private UserDTO SignUp()
+        private void SignIn()
         {
-            // is seted required fields for sign up
-            if (IsSetedRequiredFieldsForSignUp())
-            {
-                // reauired fields
-                var login = LoginTextBox.Text;
-                var password = Util.GetHashString(PasswordBox.Password);
-                var confirmedPassword = Util.GetHashString(ConfirmedPasswordBox.Password);
-                var name = FirstNameTextBox.Text;
-                var surname = LastNameTextBox.Text;
-                var dateOfBirth = DateOfBirthPicker.SelectedDate;
-                var sex = SexComboBox.SelectedItem as SexDTO;
 
-                // not required fields
-                CountryDTO country = null;
-                if (CountryComboBox.SelectedIndex != -1)
-                {
-                    country = CountryComboBox.SelectedItem as CountryDTO;
-                }
-
-                if (_bll.IsLoginExist(login))
-                {
-                    throw new Exception("Login is already exist.");
-                }
-
-                if (password != confirmedPassword)
-                {
-                    throw new Exception("Passwords do not match.");
-                }
-
-                byte[] photo = null;
-                switch (sex.Name)
-                {
-                    case "Male":
-                        photo = File.ReadAllBytes("Resources/avatar_m.png");
-                        break;
-                    case "Female":
-                        photo = File.ReadAllBytes("Resources/avatar_f.png");
-                        break;
-                    default:
-                        photo = File.ReadAllBytes("Resources/no_photo.png");
-                        break;
-                }
-
-
-                var user = new UserDTO()
-                {
-                    Login = login,
-                    Password = password,
-                    Name = name,
-                    Surname = surname,
-                    DateOfBirth = dateOfBirth,
-                    SexId = sex.Id,
-                    CountryId = country?.Id,
-                    StatusId = _bll.GetOfflineUserStatus().Id,
-                    Photo = Util.ByteArrayToImage(photo)
-                };
-
-                return _bll.AddUser(user);
-            }
-
-            else
-            {
-                throw new Exception("Enter your login,\n" +
-                    "password, confirmed password,\n" +
-                    "first name, last name and sex.");
-            }
         }
-        private UserDTO SignIn()
-        {
-            // is seted required fields for sign in
-            if (IsSetedRequiredFieldsForSignIn())
-            {
-                var login = LoginTextBox.Text;
-                var password = Util.GetHashString(PasswordBox.Password);
 
-                var user = _bll.GetUserByLoginAndPassword(login, password);
-
-                if (user == null)
-                {
-                    throw new Exception("Invalid login or password.");
-                }
-
-                return user;
-            }
-
-            else
-            {
-                throw new Exception("Enter your login and password");
-            }
-        }
-        */
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
@@ -216,10 +163,10 @@ namespace UI
                 switch (SelectedOp)
                 {
                     case Operation.SIGN_IN:
-                        //OpenChat(SignIn());
+                        SignIn();
                         break;
                     case Operation.SIGN_UP:
-                        //OpenChat(SignUp());
+                        SignUp();
                         break;
                 }
             }
@@ -235,7 +182,7 @@ namespace UI
             {
                 Message = { Text = content }
             };
-            
+
             await DialogHost.Show(sampleMessageDialog, "RootDialog");
         }
         
