@@ -18,7 +18,7 @@ namespace BLL
 
         public IEnumerable<Message> GetMessagesOfRoom(int RoomId)
         {
-            if(_dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Take(1).Count() == 0)
+            if(_dal.Rooms.GetAll().FirstOrDefault(r => r.Id == RoomId) == null)
             {
                 throw new Exception("Room couldn't be founded!");
             }
