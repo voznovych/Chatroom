@@ -32,7 +32,7 @@ namespace UI
 
         public Operation SelectedOp
         {
-            get => selectedOp;
+            get { return selectedOp; }
             set
             {
                 switch (value)
@@ -61,7 +61,7 @@ namespace UI
                 }
             }
         }
-
+        /*
         public Authorization()
         {
             InitializeComponent();
@@ -204,7 +204,7 @@ namespace UI
                 throw new Exception("Enter your login and password");
             }
         }
-
+        */
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
@@ -216,10 +216,10 @@ namespace UI
                 switch (SelectedOp)
                 {
                     case Operation.SIGN_IN:
-                        OpenChat(SignIn());
+                        //OpenChat(SignIn());
                         break;
                     case Operation.SIGN_UP:
-                        OpenChat(SignUp());
+                        //OpenChat(SignUp());
                         break;
                 }
             }
@@ -238,7 +238,7 @@ namespace UI
             
             await DialogHost.Show(sampleMessageDialog, "RootDialog");
         }
-
+        
         private void CardSignIn_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             SelectedOp = Operation.SIGN_IN;
@@ -247,5 +247,7 @@ namespace UI
         {
             SelectedOp = Operation.SIGN_UP;
         }
+        
     }
+    
 }

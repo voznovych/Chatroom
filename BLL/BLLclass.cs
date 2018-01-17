@@ -184,6 +184,22 @@ namespace BLL
             }
         }
 
+        public bool SendMessage(int roomId, string text)
+        {
+            if (AuthenticatedUser == null)
+                return false;
+
+            _dal.Messages.Add(new Message()
+            {
+                UserId = AuthenticatedUser.Id,
+                RoomId = roomId,
+                Text = text,
+                DateOfSend = DateTime.Now
+            });
+
+            return true;
+        }
+
         public void Logout()
         {
             try
