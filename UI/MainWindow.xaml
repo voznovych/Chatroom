@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         
-        Title="{Binding Path=Login, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Height="350" Width="525"
+        Title="{Binding Path=Login, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Height="500.5" Width="654"
 
         Name="mainWindow"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
@@ -32,37 +32,68 @@
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         </ResourceDictionary>
     </Window.Resources>
-    
+
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="Auto"/>
+            
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <materialDesign:ColorZone Grid.Column="0" Mode="Light"  Padding="6" Height="100"></materialDesign:ColorZone>
+
+        <DockPanel>
+            <materialDesign:ColorZone DockPanel.Dock="Top" Height="40" Mode="PrimaryMid"  Padding="4"></materialDesign:ColorZone>
+
+            <materialDesign:ColorZone DockPanel.Dock="Bottom" Height="30" Mode="PrimaryLight"  CornerRadius="5"
+                                   materialDesign:ShadowAssist.ShadowDepth="Depth2" Margin="5" VerticalAlignment="Bottom">
+                <Button Style="{DynamicResource MaterialDesignFlatButton}">
+                    <materialDesign:PackIcon Kind="Plus"/>
+                </Button>
+            </materialDesign:ColorZone>
+
+            <ListBox DockPanel.Dock="Top" Name="roomsListBox">
+
+            </ListBox>
+        </DockPanel>
+
+        <GridSplitter Grid.Column="0" Width="5">
+            
+        </GridSplitter>
         
-        <materialDesign:ColorZone Grid.Column="1" Mode="PrimaryDark" Padding="6">
-            <DockPanel>
-                <materialDesign:PopupBox DockPanel.Dock="Right" Margin="4"
-                                Style="{StaticResource MaterialDesignMultiFloatingActionPopupBox}"
-                                PlacementMode="BottomAndAlignCentres"
-                                UnfurlOrientation="Vertical">
-                    <StackPanel>
-                        <Button ToolTip="One with custom opacity" Opacity="0.5">1</Button>
-                        <Button ToolTip="Two">2</Button>
-                        <Button ToolTip="Three">3</Button>
+        <DockPanel Grid.Column="1">
+            <materialDesign:ColorZone DockPanel.Dock="Top" Height="40" Mode="PrimaryLight"  Padding="4">
+                <DockPanel>
+
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Height="30" Width="30">
+                            <Ellipse.Fill>
+                                <ImageBrush ImageSource="{Binding Path=Photo, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Stretch="Fill"/>
+                            </Ellipse.Fill>
+                        </Ellipse>
+                        <TextBlock VerticalAlignment="Center" Margin="16 0 0 0">Vlad Tymoshchuk</TextBlock>
                     </StackPanel>
-                </materialDesign:PopupBox>
-                <StackPanel Orientation="Horizontal">
-                    <Ellipse Height="50" Width="50">
-                        <Ellipse.Fill>
-                            <ImageBrush ImageSource="{Binding Path=Photo, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Stretch="Fill"/>
-                        </Ellipse.Fill>
-                    </Ellipse>
-                    <TextBlock VerticalAlignment="Center" Margin="16 0 0 0">Vlad Tymoshchuk</TextBlock>
-                </StackPanel>
-            </DockPanel>
-        </materialDesign:ColorZone>
+                </DockPanel>
+            </materialDesign:ColorZone>
+
+            <materialDesign:ColorZone DockPanel.Dock="Bottom" Mode="PrimaryDark" CornerRadius="5"
+                                    materialDesign:ShadowAssist.ShadowDepth="Depth2" Margin="5" VerticalAlignment="Bottom">
+                <DockPanel>
+
+                    <Button Style="{DynamicResource MaterialDesignFlatButton}" DockPanel.Dock="Right" Width="50"
+                            IsDefault="True" VerticalAlignment="Bottom">
+                        <materialDesign:PackIcon Kind="Send" VerticalAlignment="Bottom" />
+                    </Button>
+                    <TextBox x:Name="MessageTextBox" Margin="8 2 0 2" MaxHeight="150" materialDesign:HintAssist.Hint="Write a Message" 
+                            AcceptsReturn="True"
+                            VerticalScrollBarVisibility="Hidden"
+                            TextWrapping="Wrap"/>
+                </DockPanel>
+            </materialDesign:ColorZone>
+
+            <ListBox>
+
+            </ListBox>
+        </DockPanel>
 
     </Grid>
 </Window>

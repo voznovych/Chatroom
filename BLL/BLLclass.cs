@@ -7,11 +7,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
-using BLL.DBO_Enteties;
+using BLL;
 using DAL.Interfaces;
 
 namespace BLL
 {
+    public enum LoginResult 
+    { 
+      Succes, 
+      InvalidLogin, 
+      InvalidPassword 
+    }
+
     public enum RegistrationResult
     {
         Success,
@@ -23,7 +30,7 @@ namespace BLL
         BirthDateIsInvalidOrNotSelected,
         SexIsInvalidOrNotSelected,
     }
-    
+
     public class BLLClass
     {
         const int HUNDRED_YEARS_BEFORE = -100;
@@ -142,6 +149,62 @@ namespace BLL
             }
         }
 
+
+        private void UpdateUser()
+        {
+            _dal.Users.UpdateUser(AuthenticatedUser);
+        }
+
+        private bool IsPasswordRight(string login, string password)
+        {
+            return _dal.Users.GetAll().First(u => u.Login == login).Password == password;
+        }
+        private User GetUserByLoginAndPassword(string login, string password)
+        {
+            return _dal.Users.GetAll().First(u => u.Login == login && u.Password == password);
+        }
+
+        public LoginResult Login(string login, string password)
+        {
+            if (!IsLoginExist(login))
+            {
+                return LoginResult.InvalidLogin;
+            }
+
+
+            if (!IsPasswordRight(login, password))
+            {
+                return LoginResult.InvalidPassword;
+            }
+
+            AuthenticatedUser = GetUserByLoginAndPassword(login, password);
+            AuthenticatedUser.StatusId = GetUserStatusId(STATUS_ONLINE);
+
+            return LoginResult.Succes;
+        }
+
+        public bool SendMessage(int roomId, string text)
+        {
+            if (AuthenticatedUser == null)
+                return false;
+
+            _dal.Messages.Add(new Message()
+            {
+                UserId = AuthenticatedUser.Id,
+                RoomId = roomId,
+                Text = text,
+                DateOfSend = DateTime.Now
+            });
+
+            return true;
+        }
+
+        public void Logout()
+        {
+            AuthenticatedUser.StatusId = GetUserStatusId(STATUS_OFFLINE);
+            AuthenticatedUser = null;
+        }
+
         public RegistrationResult SignUp(SignUpUserData data)
         {
             if (!IsValidLogin(data.Login))
@@ -164,16 +227,16 @@ namespace BLL
             {
                 return RegistrationResult.SurnameIsInvalidOrEmpty;
             }
-            else if(!data.BirthDate.HasValue || !IsValidBirthDate(data.BirthDate.Value))
+            else if (!data.BirthDate.HasValue || !IsValidBirthDate(data.BirthDate.Value))
             {
                 return RegistrationResult.BirthDateIsInvalidOrNotSelected;
             }
-            else if(!IsValidSex(data.Sex))
+            else if (!IsValidSex(data.Sex))
             {
                 return RegistrationResult.SexIsInvalidOrNotSelected;
             }
 
-            User registeredUser = CreateUser(data.Login, data.Password, data.Name, data.Surname, data.BirthDate.Value, 
+            User registeredUser = CreateUser(data.Login, data.Password, data.Name, data.Surname, data.BirthDate.Value,
                                                 data.Sex.Id, data.Country?.Id);
             AddUser(registeredUser);
 
@@ -229,7 +292,7 @@ namespace BLL
                 SexId = sexId,
                 DateOfBirth = birthDate,
             };
-            if(countryId.HasValue)
+            if (countryId.HasValue)
             {
                 user.CountryId = countryId.Value;
             }
@@ -252,11 +315,9 @@ namespace BLL
         }
         public IEnumerable<CountryDTO> GetAllCountries()
         {
-            return _dal.Countries.GetAll().OrderBy(c=>c.Name).ToList().ConvertAll(Converter.ToCountryDTO);
+            return _dal.Countries.GetAll().OrderBy(c => c.Name).ToList().ConvertAll(Converter.ToCountryDTO);
         }
 
-
-        #region Get rooms feature
         public class RoomInfo
         {
             public int RoomId { get; set; }
@@ -323,10 +384,9 @@ namespace BLL
             }
             return _dal.Messages.GetAll().OrderBy(m => m.DateOfSend).LastOrDefault(m => m.RoomId == RoomId);
         }
-        #endregion
+
     }
-
-
+    }
 
     #region Data-Transfer-Object class or old name POCO = wrapper classe
     public class CountryDTO
