@@ -112,66 +112,100 @@ namespace BLL
         #region Get rooms feature
         public class RoomInfo
         {
-            public Message LastMessege { get; set; }
-            public Room Room { get; set; }
+            public MessageDTO LastMessage { get; set; }
+            public RoomDTO Room { get; set; }
             public int AmountOfUnreadedMsgs { get; set; }
 
+        }
+
+        public bool RoomExists(int RoomId)
+        {
+            return _dal.Rooms.GetAll().SkipWhile( r => r.Id != RoomId).Count() != 0;
+        }
+
+        public bool UserExists(int UserId)
+        {
+            return _dal.Users.GetAll().SkipWhile(u => u.Id != UserId).Count() != 0;
         }
 
         public IEnumerable<RoomInfo> GetInfosAboutAllUserRooms()
         {
             //return _dal.Rooms.GetAll().Where(r => r.Users.Contains(AuthenticatedUser)).ToList();
-            return _dal.Users.GetAll().Where(u => u.Id == AuthenticatedUser.Id).FirstOrDefault().
+            return _dal.Users.GetAll().First(u => u.Id == AuthenticatedUser.Id).
                 Rooms.Select(r => new RoomInfo
                 {
-                    Room = r,
+                    Room = Converter.ToRoomDTO(r),
                     AmountOfUnreadedMsgs = GetAmountOfUnreadedMessages(r.Id),
-                    LastMessege = _dal.Messages.GetAll().Where(m => m.RoomId == r.Id).LastOrDefault()
+                    LastMessage = Converter.ToMessageDTO(_dal.Messages.GetAll().Where(m => m.RoomId == r.Id).LastOrDefault())
                 });
         }
 
         public IEnumerable<RoomInfo> GetInfosAboutAllUserRooms(int UserId)
         {
             //return _dal.Rooms.GetAll().Where(r => r.Users.Contains(AuthenticatedUser));
-            return _dal.Users.GetAll().Where(u => u.Id == UserId).FirstOrDefault().
+            if(UserExists(UserId))
+            {
+                throw new Exception("User cannot be found!");
+            }
+            return _dal.Users.GetAll().First(u => u.Id == UserId).
                 Rooms.Select(r => new RoomInfo
                 {
-                    Room = r,
+                    Room = Converter.ToRoomDTO(r),
                     AmountOfUnreadedMsgs = GetAmountOfUnreadedMessages(r.Id),
-                    LastMessege = _dal.Messages.GetAll().Where(m => m.RoomId == r.Id).LastOrDefault()
+                    LastMessage = Converter.ToMessageDTO(_dal.Messages.GetAll().Where(m => m.RoomId == r.Id).LastOrDefault())
                 });
         }
 
 
 
-        public IEnumerable<Room> GetAllUserRooms(int UserId)
+        public IEnumerable<RoomDTO> GetAllUserRooms(int UserId)
         {
             //return _dal.Rooms.GetAll().Where(r => r.Users.Contains(AuthenticatedUser));
-            return _dal.Users.GetAll().Where(u => u.Id == UserId).FirstOrDefault().Rooms;
+            if (UserExists(UserId))
+            {
+                throw new Exception("User cannot be found!");
+            }
+            return _dal.Users.GetAll().First(u => u.Id == UserId).Rooms.Select(r => Converter.ToRoomDTO(r));
         }
 
-        public IEnumerable<Room> GetAllUserRooms()
+        public IEnumerable<RoomDTO> GetAllUserRooms()
         {
             //return _dal.Rooms.GetAll().Where(r => r.Users.Contains(AuthenticatedUser)).ToList();
-            return _dal.Users.GetAll().Where(u => u.Id == AuthenticatedUser.Id).FirstOrDefault().Rooms;
+            return _dal.Users.GetAll().First(u => u.Id == AuthenticatedUser.Id).Rooms.Select(r => Converter.ToRoomDTO(r));
         }
 
         public int GetAmountOfUnreadedMessages(int RoomId)
         {
-            var lastDateOfVisisit = _dal.VisitInfos.GetAll().Where(inf => inf.RoomId == RoomId && inf.UserId == AuthenticatedUser.Id).First().LastDateOfVisit;
+            if (RoomExists(RoomId))
+            {
+                throw new Exception("Room cannot be found!");
+            }
+            var lastDateOfVisisit = _dal.VisitInfos.GetAll().First(inf => inf.RoomId == RoomId && inf.UserId == AuthenticatedUser.Id).LastDateOfVisit;
             return _dal.Messages.GetAll().Where(m => m.RoomId == RoomId && m.DateOfSend > lastDateOfVisisit).Count();
         }
 
 
         public int GetAmountOfUnreadedMessages(int RoomId, int UserId)
         {
-            var lastDateOfVisisit = _dal.VisitInfos.GetAll().Where(inf => inf.RoomId == RoomId && inf.UserId == UserId).First().LastDateOfVisit;
+            if (RoomExists(RoomId))
+            {
+                throw new Exception("Room cannot be found!");
+            }
+            if (UserExists(UserId))
+            {
+                throw new Exception("User cannot be found!");
+            }
+            var lastDateOfVisisit = _dal.VisitInfos.GetAll().First(inf => inf.RoomId == RoomId && inf.UserId == UserId).LastDateOfVisit;
             return _dal.Messages.GetAll().Where(m => m.RoomId == RoomId && m.DateOfSend > lastDateOfVisisit).Count();
         }
 
-        public Message GetLastMessage(int RoomId)
+        public MessageDTO GetLastMessage(int RoomId)
         {
-            return _dal.Messages.GetAll().Where(m => m.RoomId == RoomId).LastOrDefault();
+            if (RoomExists(RoomId))
+            {
+                throw new Exception("Room cannot be found!");
+            }
+            return Converter.ToMessageDTO(_dal.Messages.GetAll().LastOrDefault(m => m.RoomId == RoomId));
         }
         #endregion
 
