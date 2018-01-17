@@ -18,7 +18,7 @@ namespace BLL
 
         public IEnumerable<Message> GetMessagesOfRoom(int RoomId)
         {
-            if(_dal.Rooms.GetAll().FirstOrDefault(r => r.Id == RoomId) == null)
+            if(_dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Count() == 0)
             {
                 throw new Exception("Room couldn't be founded!");
             }
@@ -27,7 +27,7 @@ namespace BLL
 
         public IEnumerable<Message> GetLastPackOfMessages(int RoomId, int AmountOfMsgs)
         {
-            if (_dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Take(1).Count() == 0)
+            if (_dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Count() == 0)
             {
                 throw new Exception("Room couldn't be founded!");
             }
@@ -42,7 +42,7 @@ namespace BLL
 
         public IEnumerable<Message> GetNPackOfMessages(int RoomId, int NumberofPack, int AmountOfMsgsInPack)
         {
-            if (_dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Take(1).Count() == 0)
+            if (_dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Count() == 0)
             {
                 throw new Exception("Room couldn't be founded!");
             }
@@ -61,7 +61,7 @@ namespace BLL
 
         public IEnumerable<Message> GetNewMessages(int RoomId)
         {
-            if (_dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Take(1).Count() == 0)
+            if (_dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Count() == 0)
             {
                 throw new Exception("Room couldn't be founded!");
             }
