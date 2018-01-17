@@ -33,7 +33,7 @@ namespace UI
 
         public Operation SelectedOp
         {
-            get => selectedOp;
+            get { return selectedOp; }
             set
             {
                 switch (value)
@@ -85,7 +85,8 @@ namespace UI
         }
         private bool IsSetedRequiredFieldsForSignUp()
         {
-            return !String.IsNullOrEmpty(PasswordBox.Password)
+            return !String.IsNullOrEmpty(LoginTextBox.Text)
+                && !String.IsNullOrEmpty(PasswordBox.Password)
                 && !String.IsNullOrEmpty(ConfirmedPasswordBox.Password)
                 && !String.IsNullOrEmpty(FirstNameTextBox.Text)
                 && !String.IsNullOrEmpty(LastNameTextBox.Text)
@@ -184,7 +185,7 @@ namespace UI
 
             await DialogHost.Show(sampleMessageDialog, "RootDialog");
         }
-
+        
         private void CardSignIn_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             SelectedOp = Operation.SIGN_IN;
@@ -193,5 +194,7 @@ namespace UI
         {
             SelectedOp = Operation.SIGN_UP;
         }
+        
     }
+    
 }
