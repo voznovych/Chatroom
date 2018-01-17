@@ -6,12 +6,35 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
+using BLL.DBO_Enteties;
+using DAL.Interfaces;
 
 namespace BLL
 {
+    public enum RegistrationResult
+    {
+        Success,
+        LoginIsAlreadyExist,
+        LoginIsInvalidOrEmpty,
+        NameIsInvalidOrEmpty,
+        SurnameIsInvalidOrEmpty,
+        PasswordIsInvalidOrEmpty,
+        BirthDateIsInvalidOrNotSelected,
+        SexIsInvalidOrNotSelected,
+    }
+    
     public class BLLClass
     {
-        private readonly DAL.Interfaces.IDAL _dal;
+        const int HUNDRED_YEARS_BEFORE = -100;
+        private const string STATUS_ONLINE = "Online";
+        private const string STATUS_OFFLINE = "Offline";
+        private const string STATUS_DND = "Do not disturb";
+
+        private readonly IDAL _dal;
+        private string LoginPattern { get; set; } = @"^[a-zA-Z]\w{5,19}$";
+        private string PasswordPattern { get; set; } = @"\w{6,25}";
+
         private User AuthenticatedUser { get; set; }
         static BLLClass()
         {
@@ -118,9 +141,120 @@ namespace BLL
             {
             }
         }
-    }
 
-   
+        public RegistrationResult SignUp(SignUpUserData data)
+        {
+            if (!IsValidLogin(data.Login))
+            {
+                return RegistrationResult.LoginIsInvalidOrEmpty;
+            }
+            else if (IsLoginExist(data.Login))
+            {
+                return RegistrationResult.LoginIsAlreadyExist;
+            }
+            else if (!IsValidPassword(data.Password))
+            {
+                return RegistrationResult.PasswordIsInvalidOrEmpty;
+            }
+            else if (!IsValidName(data.Name))
+            {
+                return RegistrationResult.NameIsInvalidOrEmpty;
+            }
+            else if (!IsValidName(data.Surname))
+            {
+                return RegistrationResult.SurnameIsInvalidOrEmpty;
+            }
+            else if(!data.BirthDate.HasValue || !IsValidBirthDate(data.BirthDate.Value))
+            {
+                return RegistrationResult.BirthDateIsInvalidOrNotSelected;
+            }
+            else if(!IsValidSex(data.Sex))
+            {
+                return RegistrationResult.SexIsInvalidOrNotSelected;
+            }
+
+            User registeredUser = CreateUser(data.Login, data.Password, data.Name, data.Surname, data.BirthDate.Value, 
+                                                data.Sex.Id, data.Country?.Id);
+            AddUser(registeredUser);
+
+            return RegistrationResult.Success;
+        }
+        private bool IsValidLogin(string login)
+        {
+            return !String.IsNullOrEmpty(login) && Regex.IsMatch(login, LoginPattern);
+        }
+        private bool IsValidName(string name)
+        {
+            return !String.IsNullOrEmpty(name);
+        }
+        private bool IsValidSurname(string surname)
+        {
+            return !String.IsNullOrEmpty(surname);
+        }
+        private bool IsValidPassword(string password)
+        {
+            return !String.IsNullOrEmpty(password) && Regex.IsMatch(password, PasswordPattern);
+        }
+        private bool IsValidBirthDate(DateTime birthDate)
+        {
+            return birthDate < DateTime.UtcNow && birthDate > DateTime.UtcNow.AddYears(HUNDRED_YEARS_BEFORE);
+        }
+        private bool IsValidSex(SexDTO sex)
+        {
+            if (sex == null)
+            {
+                return false;
+            }
+
+            return IsSexExist(sex.Id);
+        }
+        private bool IsSexExist(int id)
+        {
+            return _dal.Sexes.GetAll().FirstOrDefault(s => s.Id == id) != null;
+
+        }
+        private bool IsLoginExist(string login)
+        {
+            return _dal.Users.GetAll().FirstOrDefault(u => u.Login == login) != null;
+        }
+
+        private User CreateUser(string login, string password, string name, string surname,
+                                    DateTime? birthDate, int sexId, int? countryId)
+        {
+            User user = new User()
+            {
+                Login = login,
+                Name = name,
+                Surname = surname,
+                SexId = sexId,
+                DateOfBirth = birthDate,
+            };
+            if(countryId.HasValue)
+            {
+                user.CountryId = countryId.Value;
+            }
+            user.StatusId = GetUserStatusId(STATUS_OFFLINE);
+            user.Password = Util.GetHashString(password);
+
+            return user;
+        }
+        private int GetUserStatusId(string status)
+        {
+            return _dal.UserStatuses.GetAll().FirstOrDefault(s => s.Name == status).Id;
+        }
+        private void AddUser(User user)
+        {
+            _dal.Users.AddUser(user);
+        }
+        public IEnumerable<SexDTO> GetAllSexes()
+        {
+            return _dal.Sexes.GetAll().ToList().ConvertAll(Converter.ToSexDTO);
+        }
+        public IEnumerable<CountryDTO> GetAllCountries()
+        {
+            return _dal.Countries.GetAll().OrderBy(c=>c.Name).ToList().ConvertAll(Converter.ToCountryDTO);
+        }
+    }
 
     #region Data-Transfer-Object class or old name POCO = wrapper classe
     public class CountryDTO
