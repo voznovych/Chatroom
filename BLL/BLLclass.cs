@@ -31,7 +31,7 @@ namespace BLL
             {
                 throw new Exception("Room couldn't be founded!");
             }
-            var msgs = _dal.Messages.GetAll().Where(m => m.RoomId == RoomId);
+            IEnumerable<Message> msgs = _dal.Messages.GetAll().Where(m => m.RoomId == RoomId).OrderBy(m => m.DateOfSend);
             int count = msgs.Count();
             if (count > AmountOfMsgs)
             {
