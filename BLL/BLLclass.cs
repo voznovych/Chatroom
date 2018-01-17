@@ -255,6 +255,7 @@ namespace BLL
             return _dal.Countries.GetAll().OrderBy(c=>c.Name).ToList().ConvertAll(Converter.ToCountryDTO);
         }
     }
+
     #region Data-Transfer-Object class or old name POCO = wrapper classe
     public class CountryDTO
     {
