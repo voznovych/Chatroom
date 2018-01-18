@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
-using BLL.DBO_Enteties;
+using BLL;
 using DAL.Interfaces;
 
 namespace BLL
@@ -160,7 +160,52 @@ namespace BLL
         }
         private User GetUser(string login)
         {
+            return _dal.Users.GetAll().First(u => u.Login == login).Password == Util.GetHashString(password);
+        }
+        private User GetUserByLogin(string login)
+        {
             return _dal.Users.GetAll().First(u => u.Login == login);
+        }
+
+        public LoginResult Login(string login, string password)
+        {
+            if (!IsLoginExist(login))
+            {
+                return LoginResult.LoginIsNotExist;
+            }
+
+
+            if (!IsPasswordRight(login, password))
+            {
+                return LoginResult.PasswordIsWrong;
+            }
+
+            AuthenticatedUser = GetUserByLogin(login);
+            AuthenticatedUser.StatusId = GetUserStatusId(STATUS_ONLINE);
+
+            return LoginResult.Succes;
+        }
+
+        public bool SendMessage(int roomId, string text)
+        {
+            if (AuthenticatedUser == null)
+                return false;
+
+            _dal.Messages.Add(new Message()
+            {
+                UserId = AuthenticatedUser.Id,
+                RoomId = roomId,
+                Text = text,
+                DateOfSend = DateTime.Now
+            });
+
+            return true;
+        }
+
+        public void Logout()
+        {
+            AuthenticatedUser.StatusId = GetUserStatusId(STATUS_OFFLINE);
+            AuthenticatedUser = null;
         }
 
         public RegistrationResult SignUp(SignUpUserData data)
@@ -200,30 +245,6 @@ namespace BLL
 
             return RegistrationResult.Success;
         }
-        public LoginResult Login(string login, string password)
-        {
-            if (!IsLoginExist(login))
-            {
-                return LoginResult.InvalidLogin;
-            }
-            else if (!IsPasswordRight(login, password))
-            {
-                return LoginResult.InvalidPassword;
-            }
-
-            AuthenticatedUser = GetUser(login);
-            AuthenticatedUser.Status.Id = GetUserStatusId(STATUS_ONLINE);
-            UpdateUser();
-
-            return LoginResult.Success;
-        }
-        public void Logout()
-        {
-            AuthenticatedUser.Status.Id = GetUserStatusId(STATUS_OFFLINE);
-            UpdateUser();
-            AuthenticatedUser = null;
-        }
-
         private bool IsValidLogin(string login)
         {
             return !String.IsNullOrEmpty(login) && Regex.IsMatch(login, LoginPattern);
@@ -317,6 +338,74 @@ namespace BLL
         {
             return _dal.Countries.GetAll().OrderBy(c => c.Name).ToList().ConvertAll(Converter.ToCountryDTO);
         }
+
+        public class RoomInfo
+        {
+            public int RoomId { get; set; }
+            public string RoomName { get; set; }
+            public Image RoomAvatar { get; set; }
+            public MessageInfo LastMessage { get; set; }
+            public int AmountOfUnreadedMsgs { get; set; }
+        }
+
+        public class MessageInfo
+        {
+            public string Message { get; set; }
+            public DateTime TimeOfLastMessage { get; set; }
+            public string Sender { get; set; }
+        }
+
+        private bool RoomExists(int RoomId)
+        {
+            return _dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Count() != 0;
+        }
+
+        private bool UserExists(int UserId)
+        {
+            return _dal.Users.GetAll().SkipWhile(u => u.Id != UserId).Count() != 0;
+        }
+
+        public IEnumerable<RoomInfo> GetInfosAboutAllUserRooms()
+        {
+            return _dal.Users.GetAll().First(u => u.Id == AuthenticatedUser.Id).
+                Rooms.Select(r => new RoomInfo
+                {
+                    RoomId = r.Id,
+                    AmountOfUnreadedMsgs = GetAmountOfUnreadedMessages(r.Id),
+                    RoomAvatar = Util.ByteArrayToImage(r.Photo),
+                    RoomName = r.Name,
+                    LastMessage = GetInfoAboutMessage(GetLastMessage(r.Id))
+                });
+        }
+
+        private int GetAmountOfUnreadedMessages(int RoomId)
+        {
+            if (RoomExists(RoomId))
+            {
+                throw new Exception("Room cannot be found!");
+            }
+            var lastDateOfVisisit = _dal.VisitInfos.GetAll().First(inf => inf.RoomId == RoomId && inf.UserId == AuthenticatedUser.Id).LastDateOfVisit;
+            return _dal.Messages.GetAll().Where(m => m.RoomId == RoomId && m.DateOfSend > lastDateOfVisisit).Count();
+        }
+
+        private MessageInfo GetInfoAboutMessage(Message msg)
+        {
+            return new MessageInfo {
+                Message = msg.Text,
+                Sender = msg.User.Surname + ' ' + msg.User.Name,
+                TimeOfLastMessage = msg.DateOfSend
+            };
+        }
+
+        private Message GetLastMessage(int RoomId)
+        {
+            if (RoomExists(RoomId))
+            {
+                throw new Exception("Room cannot be found!");
+            }
+            return _dal.Messages.GetAll().OrderBy(m => m.DateOfSend).LastOrDefault(m => m.RoomId == RoomId);
+        }
+
     }
 
     #region Data-Transfer-Object class or old name POCO = wrapper classe

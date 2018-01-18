@@ -17,7 +17,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using BLL.DBO_Enteties;
+using BLL;
 
 namespace UI
 {
@@ -81,7 +81,7 @@ namespace UI
 
         private bool IsSetedRequiredFieldsForSignIn()
         {
-            return !String.IsNullOrEmpty(LoginTextBox.Text) // is seted login field
+            return !String.IsNullOrEmpty(LoginTextBox.Text)
                 && !String.IsNullOrEmpty(PasswordBox.Password); // is seted password field
         }
         private bool IsSetedRequiredFieldsForSignUp()
@@ -148,41 +148,28 @@ namespace UI
                     break;
             }
         }
-        private void SignIn()
+        private void SignIn(string login, string password)
         {
             if (!IsSetedRequiredFieldsForSignIn())
             {
                 ShowSampleMessageDialog("Some of required fields are not setted!");
             }
 
-            string login = LoginTextBox.Text;
-            string password = PasswordBox.Password;
-
-            SignIn(login, password);
-        }
-        private void SignIn(string login, string password)
-        {
             LoginResult result = _bll.Login(login, password);
 
-            switch (result)
+            if (result == LoginResult.Succes)
             {
-                case LoginResult.Success:
-                    OpenChat();// Open MainWindow
-                    break;
-                case LoginResult.InvalidLogin:
-                    ShowSampleMessageDialog("Login is invalid!");
-                    break;
-                case LoginResult.InvalidPassword:
-                    ShowSampleMessageDialog("Password is invalid!");
-                    break;
+                new MainWindow(_bll).Show();
+                Close();
             }
-        }
-
-        private void OpenChat()
-        {
-            MainWindow chat = new MainWindow(_bll);
-            chat.Show();
-            this.Close();
+            else if (result == LoginResult.LoginIsNotExist)
+            {
+                ShowSampleMessageDialog("Such login isn't exist!");
+            }
+            else if(result == LoginResult.PasswordIsWrong)
+            {
+                ShowSampleMessageDialog("Wrong password!");
+            }
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
@@ -196,7 +183,7 @@ namespace UI
                 switch (SelectedOp)
                 {
                     case Operation.SIGN_IN:
-                        SignIn();
+                        SignIn(LoginTextBox.Text, PasswordBox.Password);
                         break;
                     case Operation.SIGN_UP:
                         SignUp();
