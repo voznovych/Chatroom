@@ -44,6 +44,77 @@ namespace BLL
         private readonly IDAL _dal;
         private User AuthenticatedUser { get; set; }
 
+        public class MessageInf
+        {
+            public int Id { get; set; }
+            public string Text { get; set; }
+            public DateTime Date { get; set; }
+            public Sender Sender { get; set; }
+        }
+
+        public class Sender
+        {
+            public int SenderId { get; set; }
+            public string FullName { get; set; }
+            public Image Photo { get; set; }
+
+        }
+
+        private IEnumerable<MessageInf> ConvertMessagesToMessageInfs(IQueryable<Message> msgs)
+        {
+            return msgs.Select(m => new MessageInf
+            {
+                Id = m.Id,
+                Date = m.DateOfSend,
+                Text = m.Text,
+                Sender = new Sender
+                {
+                    FullName = m.User.Surname + " " + m.User.Name,
+                    Photo = Util.ByteArrayToImage(m.User.Photo),
+                    SenderId = m.UserId,
+                }
+            });
+        }
+
+        public IEnumerable<MessageInf> GetMessagesOfRoom(int RoomId)
+        {
+            if(_dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Count() == 0)
+            {
+                throw new Exception("Room couldn't be founded!");
+            }
+            return ConvertMessagesToMessageInfs(_dal.Messages.GetAll().Where(m => m.RoomId == RoomId).OrderBy(m => m.DateOfSend));
+        }
+
+        public IEnumerable<MessageInf> GetNPackOfMessages(int RoomId, int NumberofPack, int AmountOfMsgsInPack)
+        {
+            if (_dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Count() == 0)
+            {
+                throw new Exception("Room couldn't be founded!");
+            }
+            IQueryable<Message> msgs = _dal.Messages.GetAll().Where(m => m.RoomId == RoomId).OrderBy(m => m.DateOfSend);
+            int count = msgs.Count();
+            if (count < NumberofPack * AmountOfMsgsInPack - AmountOfMsgsInPack)
+            {
+                msgs = null;
+            }
+            else
+            {
+                msgs = msgs.Skip(NumberofPack * AmountOfMsgsInPack - AmountOfMsgsInPack).Take(AmountOfMsgsInPack);
+            }
+            return ConvertMessagesToMessageInfs(msgs);
+        }
+
+        public IEnumerable<MessageInf> GetNewMessages(int RoomId)
+        {
+            if (_dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Count() == 0)
+            {
+                throw new Exception("Room couldn't be founded!");
+            }
+            var msgs = _dal.Messages.GetAll().Where(m => m.RoomId == RoomId).OrderBy(m => m.DateOfSend);
+            var lastVisit = _dal.VisitInfos.GetAll().FirstOrDefault(vi => vi.RoomId == RoomId && vi.UserId == AuthenticatedUser.Id).LastDateOfVisit;
+            return ConvertMessagesToMessageInfs(msgs.SkipWhile(m => m.DateOfSend < lastVisit));
+        }
+      
         static BLLClass()
         {
             // Init AutoMapper
