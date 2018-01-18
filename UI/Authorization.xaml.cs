@@ -81,7 +81,8 @@ namespace UI
 
         private bool IsSetedRequiredFieldsForSignIn()
         {
-            return String.IsNullOrEmpty(PasswordBox.Password); // is seted password field
+            return !String.IsNullOrEmpty(LoginTextBox.Text)
+                && !String.IsNullOrEmpty(PasswordBox.Password); // is seted password field
         }
         private bool IsSetedRequiredFieldsForSignUp()
         {
@@ -122,7 +123,7 @@ namespace UI
             switch (result)
             {
                 case RegistrationResult.Success:
-                    SignIn();
+                    SignIn(registrationData.Login, registrationData.Password);
                     break;
                 case RegistrationResult.LoginIsAlreadyExist:
                     ShowSampleMessageDialog("Login is already exist!");
@@ -147,9 +148,28 @@ namespace UI
                     break;
             }
         }
-        private void SignIn()
+        private void SignIn(string login, string password)
         {
+            if (!IsSetedRequiredFieldsForSignIn())
+            {
+                ShowSampleMessageDialog("Some of required fields are not setted!");
+            }
 
+            LoginResult result = _bll.Login(login, password);
+
+            if (result == LoginResult.Succes)
+            {
+                new MainWindow(_bll).Show();
+                Close();
+            }
+            else if (result == LoginResult.InvalidLogin)
+            {
+                ShowSampleMessageDialog("Such login isn't exist!");
+            }
+            else if(result == LoginResult.InvalidPassword)
+            {
+                ShowSampleMessageDialog("Wrong password!");
+            }
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
@@ -163,7 +183,7 @@ namespace UI
                 switch (SelectedOp)
                 {
                     case Operation.SIGN_IN:
-                        SignIn();
+                        SignIn(LoginTextBox.Text, PasswordBox.Password);
                         break;
                     case Operation.SIGN_UP:
                         SignUp();
