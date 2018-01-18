@@ -5,33 +5,45 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
-             d:DesignHeight="65" d:DesignWidth="280"
-             Height="65">
-    
+             d:DesignWidth="280"
+             Height="50">
+
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition/>
-            <RowDefinition/>
-        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
-            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="50"/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <materialDesign:Badged x:Name="CountingBadge" VerticalAlignment="Top" Badge="0" HorizontalAlignment="Left" Grid.RowSpan="3">
-            <Ellipse Height="50" Width="50" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" Grid.RowSpan="3">
-                <Ellipse.Fill>
-                    <ImageBrush ImageSource="{Binding Path=Photo}"></ImageBrush>
-                </Ellipse.Fill>
-            </Ellipse>
-        </materialDesign:Badged>
-        
-        <TextBlock Text="{Binding Path=Name, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Grid.Column="3" Grid.ColumnSpan="2" FontWeight="Bold" x:Name="ChatName" FontSize="14" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"></TextBlock>
-        <TextBlock Text="{Binding Path=DateOfSend, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Grid.Column="5" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="11" Margin="2"></TextBlock>
-        <TextBlock Text="{Binding Path=Text, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.RowSpan="2" Grid.Column="3" Grid.ColumnSpan="3" FontSize="12" TextTrimming="CharacterEllipsis" VerticalAlignment="Bottom" TextWrapping="Wrap" Margin="2"></TextBlock>
+
+        <materialDesign:Badged Panel.ZIndex="1" Badge="{Binding UnreadMessages}" BadgeBackground="IndianRed" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,14,12"></materialDesign:Badged>
+        <Ellipse Height="45" Width="45">
+            <Ellipse.Fill>
+                <ImageBrush ImageSource="{Binding Path=Photo}"></ImageBrush>
+            </Ellipse.Fill>
+        </Ellipse>
+
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="2*"/>
+            </Grid.RowDefinitions>
+
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Right" Text="{Binding Path=DateOfSend, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                           Foreground="{DynamicResource PrimaryHueLightBrush}" FontSize="11" Margin="2"></TextBlock>
+                <TextBlock DockPanel.Dock="Left" Text="{Binding Path=Name, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                           Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" FontWeight="Bold" x:Name="ChatName" FontSize="14" TextTrimming="CharacterEllipsis"></TextBlock>
+            </DockPanel>
+
+            <TextBlock Grid.Row="1"  FontSize="12" TextTrimming="CharacterEllipsis" TextWrapping="Wrap" Margin="2">
+                <Run FontWeight="Bold" FontSize="12" Foreground="{DynamicResource SecondaryAccentBrush}"
+                     Text="{Binding Path=SenderName, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"></Run>
+                
+                <Run FontWeight="Bold" FontSize="12" Foreground="{DynamicResource SecondaryAccentBrush}"
+                     Text=": "></Run>
+                
+                <Run Foreground="{DynamicResource PrimaryHueMidBrush}" Text="{Binding Path=Text, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"></Run>
+            </TextBlock>
+        </Grid>
     </Grid>
+
 </UserControl>

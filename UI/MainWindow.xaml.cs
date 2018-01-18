@@ -1,22 +1,11 @@
 ﻿using BLL;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Drawing;
-//using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.IO;
+using System.Runtime.CompilerServices;
+using System.Windows;
+//using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace UI
 {
@@ -32,31 +21,56 @@ namespace UI
             InitializeComponent();
             _bll = bll;
 
-            RoomDTO room = new RoomDTO()
-            {
-                Name = "Test Room",
-                Photo = Util.ByteArrayToImage(File.ReadAllBytes("Resources/avatar_m.png"))
-            };
+            const int count = 9;
 
-            MessageDTO ms = new MessageDTO()
-            {
-                Text = "Hello pidor andty, ya tia diuznu hhhnfhfghfhhfhhfgghffhffdsf",
-                DateOfSend = DateTime.Now,
-            };
+            RoomDTO[] roomArr = new RoomDTO[count];
 
-            RoomInfo ri = new RoomInfo()
+            for (int i = 0; i < count; i++)
             {
-                Room = room,
-                Message = ms,
-                UnreadMessages = 1
-            };
+                roomArr[i] = new RoomDTO()
+                {
+                    Name = "Test Room",
+                    Photo = Util.ByteArrayToImage(File.ReadAllBytes("Resources/avatar_m.png"))
+                };
+            }
 
-            RoomInfoBox rib = new RoomInfoBox()
+            MessageDTO[] msArr = new MessageDTO[count];
+
+            for (int i = 0; i < count; i++)
             {
-                DataContext = ri
-            };
+                msArr[i] = new MessageDTO()
+                {
+                    Text = "Hello pidor andty, ya tia diuznu hhhnfhf ghfhhfhh fgghff hffdsf",
+                    DateOfSend = DateTime.Now,
+                    User = new UserDTO() { Name = "Vlad" }
+                };
+            }
 
-            roomsListBox.Items.Add(rib);
+            RoomInfo[] riArr = new RoomInfo[count];
+            Random rnd = new Random();
+
+            for (int i = 0; i < count; i++)
+            {
+                riArr[i] = new RoomInfo()
+                {
+                    Room = roomArr[i],
+                    Message = msArr[i],
+                    UnreadMessages = rnd.Next(3)
+                };
+            }
+
+            RoomInfoBox[] ribArr = new RoomInfoBox[count];
+
+            for (int i = 0; i < count; i++)
+            {
+                ribArr[i] = new RoomInfoBox()
+                {
+                    DataContext = riArr[i]
+                };
+                //roomsListBox.Items.Add(ribArr[i]);
+            }
+
+            roomsListBox.ItemsSource = ribArr;
         }
     }
 
@@ -67,12 +81,13 @@ namespace UI
         private int _unreadMessages;
         private ImageSource _photo;
 
-        public int UnreadMessages
+        public int? UnreadMessages
         {
-            get { return _unreadMessages; }
+            get { return _unreadMessages == 0 ? null : (int?)_unreadMessages; }
+
             set
             {
-                _unreadMessages = value;
+                _unreadMessages = value.Value;
                 OnPropertyChanged("UnreadMessages");
             }
         }
@@ -117,13 +132,13 @@ namespace UI
             }
         }
 
-        public string Sender
+        public string SenderName
         {
-            get { return $"{Message.User.Name} {Message.User.Surname}"; }
+            get { return Message.User.Name; }
             set
             {
-                Room.Name = value;
-                OnPropertyChanged("Sender");
+                Message.User.Name = value;
+                OnPropertyChanged("SenderName");
             }
         }
 
