@@ -6,15 +6,43 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
+using BLL;
+using DAL.Interfaces;
 
 namespace BLL
 {
+    public enum LoginResult
+    {
+        Success,
+        LoginIsNotExist,
+        PasswordIsWrong
+    }
+
+    public enum RegistrationResult
+    {
+        Success,
+        LoginIsAlreadyExist,
+        LoginIsInvalidOrEmpty,
+        NameIsInvalidOrEmpty,
+        SurnameIsInvalidOrEmpty,
+        PasswordIsInvalidOrEmpty,
+        BirthDateIsInvalidOrNotSelected,
+        SexIsInvalidOrNotSelected,
+    }
+
     public class BLLClass
     {
-        private readonly DAL.Interfaces.IDAL _dal;
-        private User AuthenticatedUser { get; set; }
+        const int HUNDRED_YEARS_BEFORE = -100;
+        private const string STATUS_ONLINE = "Online";
+        private const string STATUS_OFFLINE = "Offline";
+        private const string STATUS_DND = "Do not disturb";
 
-        #region Messages feature
+        private string LoginPattern { get; set; } = @"^[a-zA-Z]\w{5,19}$";
+        private string PasswordPattern { get; set; } = @"\w{6,25}";
+
+        private readonly IDAL _dal;
+        private User AuthenticatedUser { get; set; }
 
         public class MessageInf
         {
@@ -86,9 +114,7 @@ namespace BLL
             var lastVisit = _dal.VisitInfos.GetAll().FirstOrDefault(vi => vi.RoomId == RoomId && vi.UserId == AuthenticatedUser.Id).LastDateOfVisit;
             return ConvertMessagesToMessageInfs(msgs.SkipWhile(m => m.DateOfSend < lastVisit));
         }
-
-        #endregion
-
+      
         static BLLClass()
         {
             // Init AutoMapper
@@ -194,9 +220,246 @@ namespace BLL
             {
             }
         }
-    }
 
-   
+        private void AddUser(User user)
+        {
+            _dal.Users.AddUser(user);
+        }
+        private void UpdateUser()
+        {
+            _dal.Users.UpdateUser(AuthenticatedUser);
+        }
+        
+        private User GetUserByLogin(string login)
+        {
+            return _dal.Users.GetAll().First(u => u.Login == login);
+        }
+
+        public LoginResult Login(string login, string password)
+        {
+            if (!IsLoginExist(login))
+            {
+                return LoginResult.LoginIsNotExist;
+            }
+
+            if (!IsPasswordRight(login, password))
+            {
+                return LoginResult.PasswordIsWrong;
+            }
+
+            AuthenticatedUser = GetUserByLogin(login);
+            AuthenticatedUser.StatusId = GetUserStatusId(STATUS_ONLINE);
+            UpdateUser();
+
+            return LoginResult.Success;
+        }
+
+        public bool SendMessage(int roomId, string text)
+        {
+            if (AuthenticatedUser == null)
+                return false;
+
+            _dal.Messages.Add(new Message()
+            {
+                UserId = AuthenticatedUser.Id,
+                RoomId = roomId,
+                Text = text,
+                DateOfSend = DateTime.Now
+            });
+
+            return true;
+        }
+
+        public void Logout()
+        {
+            AuthenticatedUser.StatusId = GetUserStatusId(STATUS_OFFLINE);
+            UpdateUser();
+            AuthenticatedUser = null;
+        }
+
+        public RegistrationResult SignUp(SignUpUserData data)
+        {
+            if (!IsValidLogin(data.Login))
+            {
+                return RegistrationResult.LoginIsInvalidOrEmpty;
+            }
+            else if (IsLoginExist(data.Login))
+            {
+                return RegistrationResult.LoginIsAlreadyExist;
+            }
+            else if (!IsValidPassword(data.Password))
+            {
+                return RegistrationResult.PasswordIsInvalidOrEmpty;
+            }
+            else if (!IsValidName(data.Name))
+            {
+                return RegistrationResult.NameIsInvalidOrEmpty;
+            }
+            else if (!IsValidName(data.Surname))
+            {
+                return RegistrationResult.SurnameIsInvalidOrEmpty;
+            }
+            else if (!data.BirthDate.HasValue || !IsValidBirthDate(data.BirthDate.Value))
+            {
+                return RegistrationResult.BirthDateIsInvalidOrNotSelected;
+            }
+            else if (!IsValidSex(data.Sex))
+            {
+                return RegistrationResult.SexIsInvalidOrNotSelected;
+            }
+
+            User registeredUser = CreateUser(data.Login, data.Password, data.Name, data.Surname, data.BirthDate.Value,
+                                                data.Sex.Id, data.Country?.Id);
+            AddUser(registeredUser);
+
+            return RegistrationResult.Success;
+        }
+        private bool IsValidLogin(string login)
+        {
+            return !String.IsNullOrEmpty(login) && Regex.IsMatch(login, LoginPattern);
+        }
+        private bool IsValidName(string name)
+        {
+            return !String.IsNullOrEmpty(name);
+        }
+        private bool IsValidSurname(string surname)
+        {
+            return !String.IsNullOrEmpty(surname);
+        }
+        private bool IsValidPassword(string password)
+        {
+            return !String.IsNullOrEmpty(password) && Regex.IsMatch(password, PasswordPattern);
+        }
+        private bool IsValidBirthDate(DateTime birthDate)
+        {
+            return birthDate < DateTime.UtcNow && birthDate > DateTime.UtcNow.AddYears(HUNDRED_YEARS_BEFORE);
+        }
+        private bool IsValidSex(SexDTO sex)
+        {
+            if (sex == null)
+            {
+                return false;
+            }
+
+            return IsSexExist(sex.Id);
+        }
+
+        private bool IsSexExist(int id)
+        {
+            return _dal.Sexes.GetAll().FirstOrDefault(s => s.Id == id) != null;
+
+        }
+        private bool IsLoginExist(string login)
+        {
+            return _dal.Users.GetAll().FirstOrDefault(u => u.Login == login) != null;
+        }
+        private bool IsPasswordRight(string login, string password)
+        {
+            return _dal.Users.GetAll().First(u => u.Login == login).Password == Util.GetHashString(password);
+        }
+
+        private User CreateUser(string login, string password, string name, string surname,
+                                    DateTime? birthDate, int sexId, int? countryId)
+        {
+            User user = new User()
+            {
+                Login = login,
+                Name = name,
+                Surname = surname,
+                SexId = sexId,
+                DateOfBirth = birthDate,
+            };
+            if (countryId.HasValue)
+            {
+                user.CountryId = countryId.Value;
+            }
+            user.StatusId = GetUserStatusId(STATUS_OFFLINE);
+            user.Password = Util.GetHashString(password);
+
+            return user;
+        }
+
+        private int GetUserStatusId(string status)
+        {
+            return _dal.UserStatuses.GetAll().FirstOrDefault(s => s.Name == status).Id;
+        }
+        public IEnumerable<SexDTO> GetAllSexes()
+        {
+            return _dal.Sexes.GetAll().ToList().ConvertAll(Converter.ToSexDTO);
+        }
+        public IEnumerable<CountryDTO> GetAllCountries()
+        {
+            return _dal.Countries.GetAll().OrderBy(c => c.Name).ToList().ConvertAll(Converter.ToCountryDTO);
+        }
+
+        public class RoomInfo
+        {
+            public int RoomId { get; set; }
+            public string RoomName { get; set; }
+            public Image RoomAvatar { get; set; }
+            public MessageInfo LastMessage { get; set; }
+            public int AmountOfUnreadedMsgs { get; set; }
+        }
+
+        public class MessageInfo
+        {
+            public string Message { get; set; }
+            public DateTime TimeOfLastMessage { get; set; }
+            public string Sender { get; set; }
+        }
+
+        private bool RoomExists(int RoomId)
+        {
+            return _dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Count() != 0;
+        }
+
+        private bool UserExists(int UserId)
+        {
+            return _dal.Users.GetAll().SkipWhile(u => u.Id != UserId).Count() != 0;
+        }
+
+        public IEnumerable<RoomInfo> GetInfosAboutAllUserRooms()
+        {
+            return _dal.Users.GetAll().First(u => u.Id == AuthenticatedUser.Id).
+                Rooms.Select(r => new RoomInfo
+                {
+                    RoomId = r.Id,
+                    AmountOfUnreadedMsgs = GetAmountOfUnreadedMessages(r.Id),
+                    RoomAvatar = Util.ByteArrayToImage(r.Photo),
+                    RoomName = r.Name,
+                    LastMessage = GetInfoAboutMessage(GetLastMessage(r.Id))
+                });
+        }
+
+        private int GetAmountOfUnreadedMessages(int RoomId)
+        {
+            if (RoomExists(RoomId))
+            {
+                throw new Exception("Room cannot be found!");
+            }
+            var lastDateOfVisisit = _dal.VisitInfos.GetAll().First(inf => inf.RoomId == RoomId && inf.UserId == AuthenticatedUser.Id).LastDateOfVisit;
+            return _dal.Messages.GetAll().Where(m => m.RoomId == RoomId && m.DateOfSend > lastDateOfVisisit).Count();
+        }
+
+        private MessageInfo GetInfoAboutMessage(Message msg)
+        {
+            return new MessageInfo {
+                Message = msg.Text,
+                Sender = msg.User.Surname + ' ' + msg.User.Name,
+                TimeOfLastMessage = msg.DateOfSend
+            };
+        }
+
+        private Message GetLastMessage(int RoomId)
+        {
+            if (RoomExists(RoomId))
+            {
+                throw new Exception("Room cannot be found!");
+            }
+            return _dal.Messages.GetAll().OrderBy(m => m.DateOfSend).LastOrDefault(m => m.RoomId == RoomId);
+        }
+
+    }
 
     #region Data-Transfer-Object class or old name POCO = wrapper classe
     public class CountryDTO

@@ -8,11 +8,10 @@ namespace DAL
 {
     class ChatRoomInitializer : DropCreateDatabaseIfModelChanges<ChatRoomContext>
     {
-        public static string STATUS_ONLINE { get { return "Online"; } }
-        public static string STATUS_OFFLINE { get { return "Offline"; } }
-        public static string STATUS_DND { get { return "Do not disturb"; } }
-
-
+        private const string STATUS_ONLINE = "Online";
+        private const string STATUS_OFFLINE = "Offline";
+        private const string STATUS_DND = "Do not disturb";
+        
         protected override void Seed(ChatRoomContext context)
         {
             List<Genre> genres = new List<Genre>
