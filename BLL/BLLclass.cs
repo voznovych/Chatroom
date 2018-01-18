@@ -12,11 +12,11 @@ using DAL.Interfaces;
 
 namespace BLL
 {
-    public enum LoginResult 
-    { 
-      Succes, 
-      InvalidLogin, 
-      InvalidPassword 
+    public enum LoginResult
+    {
+        Success,
+        InvalidLogin,
+        InvalidPassword
     }
 
     public enum RegistrationResult
@@ -38,11 +38,12 @@ namespace BLL
         private const string STATUS_OFFLINE = "Offline";
         private const string STATUS_DND = "Do not disturb";
 
-        private readonly IDAL _dal;
         private string LoginPattern { get; set; } = @"^[a-zA-Z]\w{5,19}$";
         private string PasswordPattern { get; set; } = @"\w{6,25}";
 
+        private readonly IDAL _dal;
         private User AuthenticatedUser { get; set; }
+
         static BLLClass()
         {
             // Init AutoMapper
@@ -149,62 +150,19 @@ namespace BLL
             }
         }
 
-
+        private void AddUser(User user)
+        {
+            _dal.Users.AddUser(user);
+        }
         private void UpdateUser()
         {
             _dal.Users.UpdateUser(AuthenticatedUser);
         }
-
-        private bool IsPasswordRight(string login, string password)
+        private User GetUser(string login)
         {
-            return _dal.Users.GetAll().First(u => u.Login == login).Password == password;
-        }
-        private User GetUserByLoginAndPassword(string login, string password)
-        {
-            return _dal.Users.GetAll().First(u => u.Login == login && u.Password == password);
+            return _dal.Users.GetAll().First(u => u.Login == login);
         }
 
-        public LoginResult Login(string login, string password)
-        {
-                if (!IsLoginExist(login))
-                {
-                  return LoginResult.InvalidLogin;
-                }
-                    
-
-                if (!IsPasswordRight(login, password))
-                {
-                  return LoginResult.InvalidPassword;
-                }
-
-                AuthenticatedUser = GetUserByLoginAndPassword(login, password);
-                AuthenticatedUser.UserStatus.Id = GetUserStatusId(STATUS_ONLINE);
-
-                return LoginResult.Succes;
-        }
-
-        public bool SendMessage(int roomId, string text)
-        {
-            if (AuthenticatedUser == null)
-                return false;
-
-            _dal.Messages.Add(new Message()
-            {
-                UserId = AuthenticatedUser.Id,
-                RoomId = roomId,
-                Text = text,
-                DateOfSend = DateTime.Now
-            });
-
-            return true;
-        }
-
-        public void Logout()
-        {
-                AuthenticatedUser.UserStatus.Id = GetUserStatusId(STATUS_OFFLINE);
-                AuthenticatedUser = null;
-        }
-      
         public RegistrationResult SignUp(SignUpUserData data)
         {
             if (!IsValidLogin(data.Login))
@@ -227,21 +185,45 @@ namespace BLL
             {
                 return RegistrationResult.SurnameIsInvalidOrEmpty;
             }
-            else if(!data.BirthDate.HasValue || !IsValidBirthDate(data.BirthDate.Value))
+            else if (!data.BirthDate.HasValue || !IsValidBirthDate(data.BirthDate.Value))
             {
                 return RegistrationResult.BirthDateIsInvalidOrNotSelected;
             }
-            else if(!IsValidSex(data.Sex))
+            else if (!IsValidSex(data.Sex))
             {
                 return RegistrationResult.SexIsInvalidOrNotSelected;
             }
 
-            User registeredUser = CreateUser(data.Login, data.Password, data.Name, data.Surname, data.BirthDate.Value, 
+            User registeredUser = CreateUser(data.Login, data.Password, data.Name, data.Surname, data.BirthDate.Value,
                                                 data.Sex.Id, data.Country?.Id);
             AddUser(registeredUser);
 
             return RegistrationResult.Success;
         }
+        public LoginResult Login(string login, string password)
+        {
+            if (!IsLoginExist(login))
+            {
+                return LoginResult.InvalidLogin;
+            }
+            else if (!IsPasswordRight(login, password))
+            {
+                return LoginResult.InvalidPassword;
+            }
+
+            AuthenticatedUser = GetUser(login);
+            AuthenticatedUser.Status.Id = GetUserStatusId(STATUS_ONLINE);
+            UpdateUser();
+
+            return LoginResult.Success;
+        }
+        public void Logout()
+        {
+            AuthenticatedUser.Status.Id = GetUserStatusId(STATUS_OFFLINE);
+            UpdateUser();
+            AuthenticatedUser = null;
+        }
+
         private bool IsValidLogin(string login)
         {
             return !String.IsNullOrEmpty(login) && Regex.IsMatch(login, LoginPattern);
@@ -271,6 +253,7 @@ namespace BLL
 
             return IsSexExist(sex.Id);
         }
+
         private bool IsSexExist(int id)
         {
             return _dal.Sexes.GetAll().FirstOrDefault(s => s.Id == id) != null;
@@ -279,6 +262,10 @@ namespace BLL
         private bool IsLoginExist(string login)
         {
             return _dal.Users.GetAll().FirstOrDefault(u => u.Login == login) != null;
+        }
+        private bool IsPasswordRight(string login, string password)
+        {
+            return _dal.Users.GetAll().First(u => u.Login == login).Password == Util.GetHashString(password);
         }
 
         private User CreateUser(string login, string password, string name, string surname,
@@ -292,7 +279,7 @@ namespace BLL
                 SexId = sexId,
                 DateOfBirth = birthDate,
             };
-            if(countryId.HasValue)
+            if (countryId.HasValue)
             {
                 user.CountryId = countryId.Value;
             }
@@ -301,13 +288,26 @@ namespace BLL
 
             return user;
         }
+
+        public bool SendMessage(int roomId, string text)
+        {
+            if (AuthenticatedUser == null)
+                return false;
+
+            _dal.Messages.Add(new Message()
+            {
+                UserId = AuthenticatedUser.Id,
+                RoomId = roomId,
+                Text = text,
+                DateOfSend = DateTime.Now
+            });
+
+            return true;
+        }
+
         private int GetUserStatusId(string status)
         {
             return _dal.UserStatuses.GetAll().FirstOrDefault(s => s.Name == status).Id;
-        }
-        private void AddUser(User user)
-        {
-            _dal.Users.AddUser(user);
         }
         public IEnumerable<SexDTO> GetAllSexes()
         {
@@ -315,10 +315,9 @@ namespace BLL
         }
         public IEnumerable<CountryDTO> GetAllCountries()
         {
-            return _dal.Countries.GetAll().OrderBy(c=>c.Name).ToList().ConvertAll(Converter.ToCountryDTO);
+            return _dal.Countries.GetAll().OrderBy(c => c.Name).ToList().ConvertAll(Converter.ToCountryDTO);
         }
-
-
+    }
 
     #region Data-Transfer-Object class or old name POCO = wrapper classe
     public class CountryDTO

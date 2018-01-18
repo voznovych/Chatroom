@@ -81,7 +81,8 @@ namespace UI
 
         private bool IsSetedRequiredFieldsForSignIn()
         {
-            return String.IsNullOrEmpty(PasswordBox.Password); // is seted password field
+            return !String.IsNullOrEmpty(LoginTextBox.Text) // is seted login field
+                && !String.IsNullOrEmpty(PasswordBox.Password); // is seted password field
         }
         private bool IsSetedRequiredFieldsForSignUp()
         {
@@ -122,7 +123,7 @@ namespace UI
             switch (result)
             {
                 case RegistrationResult.Success:
-                    SignIn();
+                    SignIn(registrationData.Login, registrationData.Password);
                     break;
                 case RegistrationResult.LoginIsAlreadyExist:
                     ShowSampleMessageDialog("Login is already exist!");
@@ -149,7 +150,39 @@ namespace UI
         }
         private void SignIn()
         {
+            if (!IsSetedRequiredFieldsForSignIn())
+            {
+                ShowSampleMessageDialog("Some of required fields are not setted!");
+            }
 
+            string login = LoginTextBox.Text;
+            string password = PasswordBox.Password;
+
+            SignIn(login, password);
+        }
+        private void SignIn(string login, string password)
+        {
+            LoginResult result = _bll.Login(login, password);
+
+            switch (result)
+            {
+                case LoginResult.Success:
+                    OpenChat();// Open MainWindow
+                    break;
+                case LoginResult.InvalidLogin:
+                    ShowSampleMessageDialog("Login is invalid!");
+                    break;
+                case LoginResult.InvalidPassword:
+                    ShowSampleMessageDialog("Password is invalid!");
+                    break;
+            }
+        }
+
+        private void OpenChat()
+        {
+            MainWindow chat = new MainWindow(_bll);
+            chat.Show();
+            this.Close();
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
@@ -176,16 +209,16 @@ namespace UI
             }
         }
 
-        private async void ShowSampleMessageDialog(string content)
+        private void ShowSampleMessageDialog(string content)
         {
             var sampleMessageDialog = new SampleMessageDialog
             {
                 Message = { Text = content }
             };
 
-            await DialogHost.Show(sampleMessageDialog, "RootDialog");
+            DialogHost.Show(sampleMessageDialog, "RootDialog");
         }
-        
+
         private void CardSignIn_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             SelectedOp = Operation.SIGN_IN;
@@ -194,7 +227,5 @@ namespace UI
         {
             SelectedOp = Operation.SIGN_UP;
         }
-        
     }
-    
 }

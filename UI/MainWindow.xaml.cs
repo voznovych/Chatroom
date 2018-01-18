@@ -27,15 +27,16 @@ namespace UI
     {
         private readonly BLLClass _bll;
 
-        public MainWindow()
+        public MainWindow(BLLClass bll)
         {
             InitializeComponent();
+            _bll = bll;
 
             RoomDTO room = new RoomDTO()
             {
                 Name = "Test Room",
                 Photo = Util.ByteArrayToImage(File.ReadAllBytes("Resources/avatar_m.png"))
-        };
+            };
 
             MessageDTO ms = new MessageDTO()
             {
@@ -56,12 +57,6 @@ namespace UI
             };
 
             roomsListBox.Items.Add(rib);
-        }
-
-        public MainWindow(BLLClass bll)
-        {
-            InitializeComponent();
-            _bll = bll;
         }
     }
 
