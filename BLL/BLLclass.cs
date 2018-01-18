@@ -15,8 +15,8 @@ namespace BLL
     public enum LoginResult 
     { 
       Succes, 
-      InvalidLogin, 
-      InvalidPassword 
+      LoginIsNotExist, 
+      PasswordIsWrong 
     }
 
     public enum RegistrationResult
@@ -168,13 +168,13 @@ namespace BLL
         {
             if (!IsLoginExist(login))
             {
-                return LoginResult.InvalidLogin;
+                return LoginResult.LoginIsNotExist;
             }
 
 
             if (!IsPasswordRight(login, password))
             {
-                return LoginResult.InvalidPassword;
+                return LoginResult.PasswordIsWrong;
             }
 
             AuthenticatedUser = GetUserByLogin(login);

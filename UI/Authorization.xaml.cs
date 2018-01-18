@@ -162,11 +162,11 @@ namespace UI
                 new MainWindow(_bll).Show();
                 Close();
             }
-            else if (result == LoginResult.InvalidLogin)
+            else if (result == LoginResult.LoginIsNotExist)
             {
                 ShowSampleMessageDialog("Such login isn't exist!");
             }
-            else if(result == LoginResult.InvalidPassword)
+            else if(result == LoginResult.PasswordIsWrong)
             {
                 ShowSampleMessageDialog("Wrong password!");
             }
