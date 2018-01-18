@@ -15,8 +15,8 @@ namespace BLL
     public enum LoginResult
     {
         Success,
-        InvalidLogin,
-        InvalidPassword
+        LoginIsNotExist,
+        PasswordIsWrong
     }
 
     public enum RegistrationResult
@@ -158,10 +158,7 @@ namespace BLL
         {
             _dal.Users.UpdateUser(AuthenticatedUser);
         }
-        private User GetUser(string login)
-        {
-            return _dal.Users.GetAll().First(u => u.Login == login).Password == Util.GetHashString(password);
-        }
+        
         private User GetUserByLogin(string login)
         {
             return _dal.Users.GetAll().First(u => u.Login == login);
@@ -174,7 +171,6 @@ namespace BLL
                 return LoginResult.LoginIsNotExist;
             }
 
-
             if (!IsPasswordRight(login, password))
             {
                 return LoginResult.PasswordIsWrong;
@@ -182,8 +178,9 @@ namespace BLL
 
             AuthenticatedUser = GetUserByLogin(login);
             AuthenticatedUser.StatusId = GetUserStatusId(STATUS_ONLINE);
+            UpdateUser();
 
-            return LoginResult.Succes;
+            return LoginResult.Success;
         }
 
         public bool SendMessage(int roomId, string text)
@@ -205,6 +202,7 @@ namespace BLL
         public void Logout()
         {
             AuthenticatedUser.StatusId = GetUserStatusId(STATUS_OFFLINE);
+            UpdateUser();
             AuthenticatedUser = null;
         }
 
@@ -308,22 +306,6 @@ namespace BLL
             user.Password = Util.GetHashString(password);
 
             return user;
-        }
-
-        public bool SendMessage(int roomId, string text)
-        {
-            if (AuthenticatedUser == null)
-                return false;
-
-            _dal.Messages.Add(new Message()
-            {
-                UserId = AuthenticatedUser.Id,
-                RoomId = roomId,
-                Text = text,
-                DateOfSend = DateTime.Now
-            });
-
-            return true;
         }
 
         private int GetUserStatusId(string status)

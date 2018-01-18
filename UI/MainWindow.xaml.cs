@@ -40,7 +40,7 @@ namespace UI
 
             MessageDTO ms = new MessageDTO()
             {
-                Text = "Hello pidor andty, ya tia diuznu",
+                Text = "Hello pidor andty, ya tia diuznu hhhnfhfghfhhfhhfgghffhffdsf",
                 DateOfSend = DateTime.Now,
             };
 

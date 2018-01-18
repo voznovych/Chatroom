@@ -123,7 +123,7 @@ namespace UI
             switch (result)
             {
                 case RegistrationResult.Success:
-                    SignIn(registrationData.Login, registrationData.Password);
+                    SignIn();
                     break;
                 case RegistrationResult.LoginIsAlreadyExist:
                     ShowSampleMessageDialog("Login is already exist!");
@@ -148,16 +148,16 @@ namespace UI
                     break;
             }
         }
-        private void SignIn(string login, string password)
+        private void SignIn()
         {
             if (!IsSetedRequiredFieldsForSignIn())
             {
                 ShowSampleMessageDialog("Some of required fields are not setted!");
             }
 
-            LoginResult result = _bll.Login(login, password);
+            LoginResult result = _bll.Login(LoginTextBox.Text, PasswordBox.Password);
 
-            if (result == LoginResult.Succes)
+            if (result == LoginResult.Success)
             {
                 new MainWindow(_bll).Show();
                 Close();
@@ -183,7 +183,7 @@ namespace UI
                 switch (SelectedOp)
                 {
                     case Operation.SIGN_IN:
-                        SignIn(LoginTextBox.Text, PasswordBox.Password);
+                        SignIn();
                         break;
                     case Operation.SIGN_UP:
                         SignUp();
