@@ -5,11 +5,23 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ChatRoom"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
+        Title="MainWindow" Height="350" Width="300">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
-            <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <ListBox Grid.Row="1">
+                    <local:UserControl1 x:Name="MyControl"></local:UserControl1>
+                <Button Click="Button_Click">Uo</Button>
+                <Button Click="Button_Click_1">Down</Button>
+            </ListBox>
+            <GridSplitter></GridSplitter>
+        </Grid>
     </Grid>
 </Window>
