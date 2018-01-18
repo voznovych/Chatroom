@@ -157,11 +157,11 @@ namespace BLL
 
         private bool IsPasswordRight(string login, string password)
         {
-            return _dal.Users.GetAll().First(u => u.Login == login).Password == password;
+            return _dal.Users.GetAll().First(u => u.Login == login).Password == Util.GetHashString(password);
         }
-        private User GetUserByLoginAndPassword(string login, string password)
+        private User GetUserByLogin(string login)
         {
-            return _dal.Users.GetAll().First(u => u.Login == login && u.Password == password);
+            return _dal.Users.GetAll().First(u => u.Login == login);
         }
 
         public LoginResult Login(string login, string password)
@@ -177,7 +177,7 @@ namespace BLL
                 return LoginResult.InvalidPassword;
             }
 
-            AuthenticatedUser = GetUserByLoginAndPassword(login, password);
+            AuthenticatedUser = GetUserByLogin(login);
             AuthenticatedUser.StatusId = GetUserStatusId(STATUS_ONLINE);
 
             return LoginResult.Succes;
