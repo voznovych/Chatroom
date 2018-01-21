@@ -32,9 +32,8 @@ namespace DAL.DAL_Enteties
             User temp = _ctx.Users.FirstOrDefault(u=> u.Id == user.Id);
             temp.CountryId = user.CountryId;
             temp.DateOfBirth = user.DateOfBirth;
-            temp.Login = user.Login;
             temp.Name = user.Name;
-            temp.Password = temp.Password;
+            temp.Password = user.Password;
             temp.Photo = user.Photo;
             temp.SexId = user.SexId;
             temp.StatusId = user.StatusId;

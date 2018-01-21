@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:UI"
+         xmlns:domain1="clr-namespace:UI.Domain"
         mc:Ignorable="d"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         
@@ -28,6 +29,7 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.RadioButton.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.TextBlock.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ToggleButton.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Flipper.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         </ResourceDictionary>
@@ -35,27 +37,118 @@
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" MaxWidth="500" MinWidth="70"/>
+            <ColumnDefinition Width="240" MaxWidth="500" MinWidth="240"/>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
+        <materialDesign:Flipper x:Name="EditUserFlipper" Grid.Column="0" Style="{StaticResource MaterialDesignCardFlipper}" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+            <materialDesign:Flipper.FrontContent>
+                <Grid >
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <materialDesign:ColorZone Height="40" Mode="PrimaryMid"  Padding="4"/>
+                    <Button x:Name="ChatListsButton" Width="50" Grid.Row="0" HorizontalAlignment="Right" Margin="2" Command="{x:Static materialDesign:Flipper.FlipCommand}" Click="OpenUserInfoBlock_Click">
+                        <materialDesign:PackIcon Kind="AccountSettingsVariant" />
+                    </Button>
+                    <ListBox HorizontalContentAlignment="Stretch" Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Hidden" Name="roomsListBox"/>
 
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+                    <Button Grid.Row="1" Margin="7" Height="30" Width="30" VerticalAlignment="Bottom" HorizontalAlignment="Right" Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}"
+                            ToolTip="Create Room" materialDesign:ShadowAssist.ShadowDepth="Depth5" materialDesign:ShadowAssist.ShadowEdges="All" materialDesign:ShadowAssist.Darken="True">
+                        <materialDesign:PackIcon Kind="PlusCircle" Height="20" Width="20" />
+                    </Button>
+                </Grid>
+            </materialDesign:Flipper.FrontContent>
+            <materialDesign:Flipper.BackContent>
+                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Name="SignUpAdditionalGrid" Margin="6, 0, 16, 0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-            <materialDesign:ColorZone Height="40" Mode="PrimaryMid"  Padding="4"/>
+                    <Grid.ColumnDefinitions >
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button BorderThickness="0" Background="{Binding ElementName=NewPasswordBox, Path=BorderBrush}" VerticalAlignment="Top" Grid.Row="0" Command="{x:Static materialDesign:Flipper.FlipCommand}">
+                        <materialDesign:PackIcon 
+                            Grid.Row="0" Grid.Column="0"
+                            Kind="ArrowLeftBold" HorizontalAlignment="Left" Margin="2" />
+                    </Button>
+                    <Ellipse Grid.Column="1" Grid.Row="0" Width="80" Height="80" MouseLeftButtonDown="ChangePicture_MouseDown" MouseLeftButtonUp="ChangePicture_MouseUp" MouseLeave="MouseLeavedPictureBox" MouseEnter="MouseEntered">
+                        <Ellipse.Fill>
+                            <ImageBrush x:Name="UserAvatarChangingBox"></ImageBrush>
+                        </Ellipse.Fill>
+                    </Ellipse>
+                    <materialDesign:PackIcon Grid.Row="1" Grid.Column="0"
+                    VerticalAlignment="Center" Margin="4,0,4,0"
+                    Kind="Key" Foreground="{Binding ElementName=NewPasswordBox, Path=BorderBrush}"/>
+                    <PasswordBox Grid.Row="1" Grid.Column="1" 		
+                     x:Name="NewPasswordBox"
+                     materialDesign:HintAssist.Hint="New Password" Margin="0,8,0,4" />
 
-            <ListBox HorizontalContentAlignment="Stretch" Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Hidden" Name="roomsListBox"/>
+                    <materialDesign:PackIcon Grid.Row="2" Grid.Column="0"
+                    VerticalAlignment="Center" Margin="4,0,4,0"
+                    Kind="Key" Foreground="{Binding ElementName=ConfirmedPasswordBox, Path=BorderBrush}"/>
+                    <PasswordBox Grid.Row="2" Grid.Column="1" 		
+                     x:Name="ConfirmedPasswordBox"
+                     materialDesign:HintAssist.Hint="Confirm Password" Margin="0,8,0,4" />
 
-            <Button Grid.Row="1" Margin="7" Height="30" Width="30" VerticalAlignment="Bottom" HorizontalAlignment="Right" Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}"
-                        ToolTip="Create Room" materialDesign:ShadowAssist.ShadowDepth="Depth5" materialDesign:ShadowAssist.ShadowEdges="All" materialDesign:ShadowAssist.Darken="True">
-                <materialDesign:PackIcon Kind="PlusCircle" Height="20" Width="20" />
-            </Button>
-        </Grid>
+                    <TextBox x:Name="FirstNameTextBox" Grid.Row="3" Grid.Column="1" materialDesign:HintAssist.Hint="First Name" 
+                 Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0">
+                        <TextBox.Text>
+                            <Binding Path="Name" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged">
+                                <Binding.ValidationRules>
+                                    <domain1:NotEmptyValidationRule ValidatesOnTargetUpdated="True" />
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
 
+                    <TextBox x:Name="LastNameTextBox" Grid.Row="4" Grid.Column="1" materialDesign:HintAssist.Hint="Last Name" 
+                 Style="{StaticResource MaterialDesignFloatingHintTextBox}" Margin="0,4,0,0">
+                        <TextBox.Text>
+                            <Binding Path="Surname" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged">
+                                <Binding.ValidationRules>
+                                    <domain1:NotEmptyValidationRule ValidatesOnTargetUpdated="True" />
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+
+                    <DatePicker x:Name="DateOfBirthPicker" Grid.Row="5" Grid.Column="1" Margin="0,12,0,0" materialDesign:HintAssist.Hint="Date Of Birth"/>
+
+                    <materialDesign:PackIcon Grid.Row="6" Grid.Column="0"
+                    VerticalAlignment="Center" Margin="4,0,4,0"
+                    Kind="GenderMaleFemale" Foreground="{Binding ElementName=SexComboBox, Path=BorderBrush}"/>
+                    <ComboBox x:Name="SexComboBox" Grid.Row="6" Grid.Column="1" materialDesign:HintAssist.Hint="Sex" Style="{StaticResource MaterialDesignFloatingHintComboBox}" Margin="0,2,0,0">
+                        <ComboBox.Text>
+                            <Binding Path="Sex" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged">
+                                <Binding.ValidationRules>
+                                    <domain1:NotEmptyValidationRule ValidatesOnTargetUpdated="True" />
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </ComboBox.Text>
+                    </ComboBox>
+
+                    <materialDesign:PackIcon Grid.Row="7" Grid.Column="0"
+                    VerticalAlignment="Center" Margin="4,0,4,0"
+                    Kind="City" Foreground="{Binding ElementName=CountryComboBox, Path=BorderBrush}"/>
+                    <ComboBox x:Name="CountryComboBox" Grid.Row="7" Grid.Column="1" materialDesign:HintAssist.Hint="Country" Style="{StaticResource MaterialDesignFloatingHintComboBox}" Margin="0,2,0,4"/>
+                    <Button Grid.Row="8" Grid.ColumnSpan="2" Click="UpdateUserInfo_Click" Margin="8,4,4,4">Edit
+
+                    </Button>
+                </Grid>
+            </materialDesign:Flipper.BackContent>
+        </materialDesign:Flipper>
         <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Center" Width="2" ResizeBehavior="PreviousAndNext" ShowsPreview="True"/>
 
         <DockPanel Grid.Column="2">

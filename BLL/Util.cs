@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+
 
 namespace BLL
 {
@@ -43,7 +45,7 @@ namespace BLL
                 return null;
 
             MemoryStream ms = new MemoryStream();
-            imageIn.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
+            imageIn.Save(ms, imageIn.RawFormat);
             return ms.ToArray();
         }
         public static System.Drawing.Image ByteArrayToImage(byte[] byteArrayIn)
@@ -74,6 +76,16 @@ namespace BLL
 
                 return bitmapImage;
             }
+        }
+        public static System.Drawing.Image ImageSourceToImage(ImageSource image)
+        {
+            System.Drawing.Image img;
+            MemoryStream outStream = new MemoryStream();
+            BitmapEncoder enc = new BmpBitmapEncoder();
+            enc.Frames.Add(BitmapFrame.Create((BitmapSource)image));
+            enc.Save(outStream);
+            img = System.Drawing.Image.FromStream(outStream);
+            return img;
         }
     }
 }

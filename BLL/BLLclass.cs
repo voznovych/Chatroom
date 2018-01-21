@@ -31,6 +31,83 @@ namespace BLL
         SexIsInvalidOrNotSelected,
     }
 
+    public enum UpdateResult
+    {
+        Success,
+        NameIsInvalidOrEmpty,
+        SurnameIsInvalidOrEmpty,
+        PasswordIsInvalid,
+        BirthDateIsInvalidOrNotSelected,
+        SexIsInvalidOrNotSelected,
+    }
+
+    public class UserInfo
+    {
+        public int Id { get; set; }
+        public string Login { get; set; }
+        public string Password { get; set; }
+        public Image Photo { get; set; }
+        public int StatusId { get; set; }
+        public int? CountryId { get; set; }
+        public int SexId { get; set; }
+        public DateTime? DateOfBirth { get; set; }
+        public string Name { get; set; }
+        public string Surname { get; set; }
+    }
+
+    public class CountryInfo
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public override string ToString()
+        {
+            return Name;
+        }
+    }
+
+    public class SexInfo
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public override string ToString()
+        {
+            return Name;
+        }
+    }
+
+    public class MessageInfo
+    {
+        public int Id { get; set; }
+        public string Text { get; set; }
+        public DateTime Date { get; set; }
+        public Sender Sender { get; set; }
+    }
+
+    public class Sender
+    {
+        public int SenderId { get; set; }
+        public string FullName { get; set; }
+        public Image Photo { get; set; }
+
+    }
+
+    public class RoomInfo
+    {
+        public int RoomId { get; set; }
+        public string RoomName { get; set; }
+        public Image RoomAvatar { get; set; }
+        public ShortMessageInfo LastMessage { get; set; }
+        public int AmountOfUnreadedMsgs { get; set; }
+    }
+
+    public class ShortMessageInfo
+    {
+        public string Message { get; set; }
+        public DateTime TimeOfLastMessage { get; set; }
+        public string Sender { get; set; }
+    }
+
+
     public class BLLClass
     {
         const int HUNDRED_YEARS_BEFORE = -100;
@@ -44,25 +121,71 @@ namespace BLL
         private readonly IDAL _dal;
         private User AuthenticatedUser { get; set; }
 
-        public class MessageInf
+        public IEnumerable<CountryInfo> GetCountriesInf()
         {
-            public int Id { get; set; }
-            public string Text { get; set; }
-            public DateTime Date { get; set; }
-            public Sender Sender { get; set; }
+            return _dal.Countries.GetAll().ToList().Select(c => new CountryInfo { Id = c.Id, Name = c.Name });
         }
 
-        public class Sender
+        public IEnumerable<SexInfo> GetSexesInf()
         {
-            public int SenderId { get; set; }
-            public string FullName { get; set; }
-            public Image Photo { get; set; }
-
+            return _dal.Sexes.GetAll().ToList().Select(s => new SexInfo { Id = s.Id, Name = s.Name });
         }
 
-        private IEnumerable<MessageInf> ConvertMessagesToMessageInfs(IQueryable<Message> msgs)
+        public UserInfo GetCurrentUser() => new UserInfo
         {
-            return msgs.Select(m => new MessageInf
+            Id = AuthenticatedUser.Id,
+            CountryId = AuthenticatedUser.CountryId,
+            DateOfBirth = AuthenticatedUser.DateOfBirth,
+            Login = AuthenticatedUser.Login,
+            Password = AuthenticatedUser.Password,
+            SexId = AuthenticatedUser.SexId,
+            StatusId = AuthenticatedUser.StatusId,
+            Photo = Util.ByteArrayToImage(AuthenticatedUser.Photo),
+            Name = AuthenticatedUser.Name,
+            Surname = AuthenticatedUser.Surname
+        };
+
+        public UpdateResult UpdateUser(UserInfo user)
+        {
+            if (!string.IsNullOrEmpty(user.Password) && !IsValidPassword(user.Password))
+            {
+                return UpdateResult.PasswordIsInvalid;
+            }
+            else if (!IsValidName(user.Name))
+            {
+                return UpdateResult.NameIsInvalidOrEmpty;
+            }
+            else if (!IsValidName(user.Surname))
+            {
+                return UpdateResult.SurnameIsInvalidOrEmpty;
+            }
+            else if (!user.DateOfBirth.HasValue || !IsValidBirthDate(user.DateOfBirth.Value))
+            {
+                return UpdateResult.BirthDateIsInvalidOrNotSelected;
+            }
+            else if (_dal.Sexes.GetAll().FirstOrDefault( s => s.Id == user.SexId) == null)
+            {
+                return UpdateResult.SexIsInvalidOrNotSelected;
+            }
+            _dal.Users.UpdateUser(new User
+            {
+                Id = user.Id,
+                CountryId = user.CountryId,
+                DateOfBirth = user.DateOfBirth,
+                Password = string.IsNullOrEmpty(user.Password) ? AuthenticatedUser.Password : Util.GetHashString(user.Password),
+                Photo = Util.ImageToByteArray(user.Photo),
+                Name = user.Name,
+                Surname = user.Surname,
+                StatusId = user.StatusId,
+                SexId = user.SexId
+            });
+            return UpdateResult.Success;
+        }
+
+
+        private IEnumerable<MessageInfo> ConvertMessagesToMessageInfs(IQueryable<Message> msgs)
+        {
+            return msgs.Select(m => new MessageInfo
             {
                 Id = m.Id,
                 Date = m.DateOfSend,
@@ -76,7 +199,7 @@ namespace BLL
             });
         }
 
-        public IEnumerable<MessageInf> GetMessagesOfRoom(int RoomId)
+        public IEnumerable<MessageInfo> GetMessagesOfRoom(int RoomId)
         {
             if(_dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Count() == 0)
             {
@@ -85,7 +208,7 @@ namespace BLL
             return ConvertMessagesToMessageInfs(_dal.Messages.GetAll().Where(m => m.RoomId == RoomId).OrderBy(m => m.DateOfSend));
         }
 
-        public IEnumerable<MessageInf> GetNPackOfMessages(int RoomId, int NumberofPack, int AmountOfMsgsInPack)
+        public IEnumerable<MessageInfo> GetNPackOfMessages(int RoomId, int NumberofPack, int AmountOfMsgsInPack)
         {
             if (_dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Count() == 0)
             {
@@ -104,7 +227,7 @@ namespace BLL
             return ConvertMessagesToMessageInfs(msgs);
         }
 
-        public IEnumerable<MessageInf> GetNewMessages(int RoomId)
+        public IEnumerable<MessageInfo> GetNewMessages(int RoomId)
         {
             if (_dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Count() == 0)
             {
@@ -392,22 +515,6 @@ namespace BLL
             return _dal.Countries.GetAll().OrderBy(c => c.Name).ToList().ConvertAll(Converter.ToCountryDTO);
         }
 
-        public class RoomInfo
-        {
-            public int RoomId { get; set; }
-            public string RoomName { get; set; }
-            public Image RoomAvatar { get; set; }
-            public MessageInfo LastMessage { get; set; }
-            public int AmountOfUnreadedMsgs { get; set; }
-        }
-
-        public class MessageInfo
-        {
-            public string Message { get; set; }
-            public DateTime TimeOfLastMessage { get; set; }
-            public string Sender { get; set; }
-        }
-
         private bool RoomExists(int RoomId)
         {
             return _dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Count() != 0;
@@ -441,9 +548,9 @@ namespace BLL
             return _dal.Messages.GetAll().Where(m => m.RoomId == RoomId && m.DateOfSend > lastDateOfVisisit).Count();
         }
 
-        private MessageInfo GetInfoAboutMessage(Message msg)
+        private ShortMessageInfo GetInfoAboutMessage(Message msg)
         {
-            return new MessageInfo {
+            return new ShortMessageInfo {
                 Message = msg.Text,
                 Sender = msg.User.Surname + ' ' + msg.User.Name,
                 TimeOfLastMessage = msg.DateOfSend
