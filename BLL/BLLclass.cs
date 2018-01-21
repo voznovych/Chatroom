@@ -163,7 +163,7 @@ namespace BLL
             {
                 return UpdateResult.BirthDateIsInvalidOrNotSelected;
             }
-            else if (_dal.Sexes.GetAll().FirstOrDefault( s => s.Id == user.SexId) == null)
+            else if (_dal.Sexes.GetAll().FirstOrDefault(s => s.Id == user.SexId) == null)
             {
                 return UpdateResult.SexIsInvalidOrNotSelected;
             }
