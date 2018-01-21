@@ -30,7 +30,7 @@ namespace BLL
         BirthDateIsInvalidOrNotSelected,
         SexIsInvalidOrNotSelected,
     }
-
+  
     public class BLLClass
     {
         const int HUNDRED_YEARS_BEFORE = -100;
@@ -58,6 +58,35 @@ namespace BLL
             public string FullName { get; set; }
             public Image Photo { get; set; }
 
+        }
+        public IEnumerable<MessageInf> FindMessagesInRoom(int roomId, string text)
+        {
+            //var messages = _dal.Rooms.GetAll()
+            //                   .FirstOrDefault(r => r.Id == roomId)
+            //                   ?.Messages.AsQueryable()
+            //                   .Where(m=>m.Text.Contains(text));
+
+            var messages = _dal.Rooms.GetAll()
+                               .Where(r => r.Id == roomId)
+                               .SelectMany(r => r.Messages)
+                               .Where(m => m.Text.Contains(text))
+                               .OrderBy(m => m.DateOfSend);
+
+            return ConvertMessagesToMessageInfs(messages);
+        }
+        public IEnumerable<MessageInf> FindMessages(string text)
+        {
+            //var messages = AuthenticatedUser.Rooms.AsQueryable()
+            //                                       .SelectMany(r => r.Messages)
+            //                                       .Where(m => m.Text.Contains(text));
+
+            var messages = _dal.Users.GetAll().Where(u => u.Id == AuthenticatedUser.Id)
+                                              .SelectMany(u => u.Rooms)
+                                              .SelectMany(r => r.Messages)
+                                              .Where(m => m.Text.Contains(text))
+                                              .OrderBy(m => m.DateOfSend);
+
+            return ConvertMessagesToMessageInfs(messages);
         }
 
         public void CreateRoom(CreateRoomData data)
@@ -133,7 +162,7 @@ namespace BLL
             var lastVisit = _dal.VisitInfos.GetAll().FirstOrDefault(vi => vi.RoomId == RoomId && vi.UserId == AuthenticatedUser.Id).LastDateOfVisit;
             return ConvertMessagesToMessageInfs(msgs.SkipWhile(m => m.DateOfSend < lastVisit));
         }
-      
+
         static BLLClass()
         {
             // Init AutoMapper
@@ -248,7 +277,7 @@ namespace BLL
         {
             _dal.Users.UpdateUser(AuthenticatedUser);
         }
-        
+
         private User GetUserByLogin(string login)
         {
             return _dal.Users.GetAll().First(u => u.Login == login);
