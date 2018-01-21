@@ -61,10 +61,15 @@ namespace BLL
         }
         public IEnumerable<MessageInf> FindMessagesInRoom(int roomId, string text)
         {
+            //var messages = _dal.Rooms.GetAll()
+            //                   .FirstOrDefault(r => r.Id == roomId)
+            //                   ?.Messages.AsQueryable()
+            //                   .Where(m=>m.Text.Contains(text));
+
             var messages = _dal.Rooms.GetAll()
-                               .FirstOrDefault(r => r.Id == roomId)
-                               ?.Messages.AsQueryable()
-                               .Where(m=>m.Text.Contains(text));
+                               .Where(r => r.Id == roomId)
+                               .SelectMany(r => r.Messages)
+                               .Where(m => m.Text.Contains(text));
 
             return ConvertMessagesToMessageInfs(messages);
         }
