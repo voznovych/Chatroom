@@ -268,7 +268,33 @@ namespace BLL
             {
             }
         }
+        private IEnumerable<RoomInfo> ConvertRoomToRoomInfo(IQueryable<Room> rooms)
+        {
+            return rooms.Select(r => new RoomInfo()
+             {
+                 RoomId = r.Id,
+                 AmountOfUnreadedMsgs = GetAmountOfUnreadedMessages(r.Id),
+                 RoomAvatar = Util.ByteArrayToImage(r.Photo),
+                 RoomName = r.Name,
+                 LastMessage = GetInfoAboutMessage(GetLastMessage(r.Id))
+             });
+        }
+        public IEnumerable<RoomInfo> FindUserRooms(string name)
+        {
+            var rooms = _dal.Users.GetAll()
+                            .Where(u => u.Id == AuthenticatedUser.Id)
+                            .SelectMany(u => u.Rooms)
+                            .Where(r => r.Name.Contains(name));
 
+            return ConvertRoomToRoomInfo(rooms);
+        }
+        public IEnumerable<RoomInfo> FindRooms(string name)
+        {
+            var rooms = _dal.Rooms.GetAll()
+                            .Where(r => r.Name.Contains(name));
+
+            return ConvertRoomToRoomInfo(rooms);
+        }
         private void AddUser(User user)
         {
             _dal.Users.AddUser(user);
