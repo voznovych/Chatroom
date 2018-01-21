@@ -67,7 +67,11 @@ namespace UI.Controls
         }
         private void PhotoEllipse_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            Photo = LoadImage();
+            var image = LoadImage();
+            if (image != null)
+            {
+                Photo = image;
+            }
         }
 
         private CreateRoomData GetCreateRoomData()

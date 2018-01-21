@@ -79,9 +79,9 @@ namespace UI
             CountryComboBox.ItemsSource = _bll.GetAllCountries();
             CountryComboBox.DisplayMemberPath = "Name";
 
-            //LoginTextBox.Text = "test44";
-            //PasswordBox.Password = "123456";
-            //SignIn();
+            LoginTextBox.Text = "test44";
+            PasswordBox.Password = "123456";
+            SignIn();
         }
 
         private bool IsSetedRequiredFieldsForSignIn()
