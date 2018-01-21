@@ -59,6 +59,7 @@
   <ItemGroup>
     <Compile Include="BLLclass.cs" />
     <Compile Include="Converter.cs" />
+    <Compile Include="DTO Enteties\CreateRoomData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DTO Enteties\SignUpUserData.cs" />
     <Compile Include="Util.cs" />

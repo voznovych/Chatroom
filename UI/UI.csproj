@@ -68,20 +68,33 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\CreateRoomDialog.xaml.cs">
+      <DependentUpon>CreateRoomDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Domain\AnotherCommandImplementation.cs" />
     <Compile Include="Domain\NotifyPropertyChangedExtension.cs" />
-    <Compile Include="Domain\SampleMessageDialog.xaml.cs">
+    <Compile Include="Controls\SampleMessageDialog.xaml.cs">
       <DependentUpon>SampleMessageDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Domain\TextFieldsViewModel.cs" />
-    <Compile Include="RoomInfoBox.xaml.cs">
+    <Compile Include="Controls\MessageInfoCardFromMe.xaml.cs">
+      <DependentUpon>MessageInfoCardFromMe.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\MessageInfoCard.xaml.cs">
+      <DependentUpon>MessageInfoCard.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\RoomInfoBox.xaml.cs">
       <DependentUpon>RoomInfoBox.xaml</DependentUpon>
     </Compile>
     <Page Include="Authorization.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Domain\SampleMessageDialog.xaml">
+    <Page Include="Controls\CreateRoomDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\SampleMessageDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -100,7 +113,15 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="RoomInfoBox.xaml">
+    <Page Include="Controls\MessageInfoCardFromMe.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\MessageInfoCard.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\RoomInfoBox.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -148,15 +169,30 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\key_security.png">
+    <EmbeddedResource Include="Resources\key_security.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\avatar_f.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\avatar_m.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\trans.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\if_photo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\if_photo_icon.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>

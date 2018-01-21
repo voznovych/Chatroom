@@ -14,7 +14,7 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <materialDesign:Badged Panel.ZIndex="1" Badge="{Binding UnreadMessages}" BadgeBackground="IndianRed" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,14,12"></materialDesign:Badged>
+        <materialDesign:Badged Name="badged" Panel.ZIndex="1" Badge="{Binding UnreadMessages}" BadgeBackground="IndianRed" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,14,12"></materialDesign:Badged>
         <Ellipse Height="45" Width="45">
             <Ellipse.Fill>
                 <ImageBrush ImageSource="{Binding Path=Photo}"></ImageBrush>

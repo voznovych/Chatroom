@@ -60,6 +60,25 @@ namespace BLL
 
         }
 
+        public void CreateRoom(CreateRoomData data)
+        {
+            _dal.Rooms.Add(new Room()
+            {
+                Name = data.Name,
+                Description = data.Description,
+                GenreId = data.Genre.Id,
+                CreatorId = AuthenticatedUser.Id,
+                IsPersonal = data.IsPersonal,
+                IsPrivate = data.IsPrivate,
+                Photo = Util.ImageToByteArray(data.Photo)
+            });
+        }
+
+        public IEnumerable<GenreDTO> GetAllGenres()
+        {
+            return _dal.Genres.GetAll().ToList().ConvertAll(Converter.ToGenreDTO);
+        }
+
         private IEnumerable<MessageInf> ConvertMessagesToMessageInfs(IQueryable<Message> msgs)
         {
             return msgs.Select(m => new MessageInf
@@ -188,23 +207,23 @@ namespace BLL
                     .ForMember(dest => dest.VisitInfos,
                         opts => opts.Ignore());
 
-                cfg.CreateMap<Sex, SexDTO>()
+                cfg.CreateMap<SexDTO, Sex>()
                     .ForMember(dest => dest.Users,
                         opts => opts.Ignore());
 
-                cfg.CreateMap<Country, CountryDTO>()
+                cfg.CreateMap<CountryDTO, Country>()
                     .ForMember(dest => dest.Users,
                         opts => opts.Ignore());
 
-                cfg.CreateMap<UserStatus, UserStatusDTO>()
+                cfg.CreateMap<UserStatusDTO, UserStatus>()
                     .ForMember(dest => dest.Users,
                         opts => opts.Ignore());
 
-                cfg.CreateMap<VisitInfo, VisitInfoDTO>();
+                cfg.CreateMap<VisitInfoDTO, VisitInfo>();
 
-                cfg.CreateMap<Message, MessageDTO>();
+                cfg.CreateMap<MessageDTO, Message>();
 
-                cfg.CreateMap<Genre, GenreDTO>()
+                cfg.CreateMap<GenreDTO, Genre>()
                     .ForMember(dest => dest.Rooms,
                         opts => opts.Ignore());
 

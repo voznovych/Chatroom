@@ -28,93 +28,117 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.RadioButton.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.TextBlock.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ToggleButton.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Flipper.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         </ResourceDictionary>
     </Window.Resources>
 
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" MaxWidth="500" MinWidth="70"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-
+    <materialDesign:DialogHost Identifier="CreateRoomDialog">
         <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" MaxWidth="500" MinWidth="70"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-            <materialDesign:ColorZone Height="40" Mode="PrimaryMid"  Padding="4"/>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-            <ListBox HorizontalContentAlignment="Stretch" Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Hidden" Name="roomsListBox"/>
+                <materialDesign:ColorZone Height="40" Mode="PrimaryMid"  Padding="4"/>
 
-            <Button Grid.Row="1" Margin="7" Height="30" Width="30" VerticalAlignment="Bottom" HorizontalAlignment="Right" Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}"
-                        ToolTip="Create Room" materialDesign:ShadowAssist.ShadowDepth="Depth5" materialDesign:ShadowAssist.ShadowEdges="All" materialDesign:ShadowAssist.Darken="True">
-                <materialDesign:PackIcon Kind="PlusCircle" Height="20" Width="20" />
-            </Button>
-        </Grid>
+                <materialDesign:ColorZone Grid.Row="1" Mode="Dark" Padding="8 0 8 0" CornerRadius="2" Panel.ZIndex="1"
+                                   Margin="4"
+                                   materialDesign:ShadowAssist.ShadowDepth="Depth2">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
 
-        <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Center" Width="2" ResizeBehavior="PreviousAndNext" ShowsPreview="True"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Style="{DynamicResource MaterialDesignToolButton}">
+                            <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
+                        </Button>
+                        <TextBox Grid.Column="1" Margin="8 0 0 0" materialDesign:HintAssist.Hint="Search room" 
+                                     materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"
+                                     MinWidth="200" VerticalAlignment="Center" />
+                    </Grid>
+                </materialDesign:ColorZone>
 
-        <DockPanel Grid.Column="2">
-            <materialDesign:ColorZone DockPanel.Dock="Top" Height="40" Mode="PrimaryLight"  Padding="4">
-                <DockPanel>
+                <ListBox ItemsSource="{Binding Rooms}" HorizontalContentAlignment="Stretch" Grid.Row="2" ScrollViewer.VerticalScrollBarVisibility="Hidden" Name="roomsListBox"/>
+
+                <Button Grid.Row="2" Margin="7" Height="30" Width="30" VerticalAlignment="Bottom" HorizontalAlignment="Right" Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}"
+                        ToolTip="Create Room" materialDesign:ShadowAssist.ShadowDepth="Depth5" Click="CreateRoomButton_Click">
+                    <materialDesign:PackIcon Kind="PlusCircle" Height="20" Width="20"/>
+                </Button>
+            </Grid>
+
+            <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Center" Width="2" ResizeBehavior="PreviousAndNext" ShowsPreview="True"/>
+
+            <DockPanel Grid.Column="2">
+                <materialDesign:ColorZone DockPanel.Dock="Top" Height="40" Mode="PrimaryLight"  Padding="4">
+                    <DockPanel>
 
 
-                    <Ellipse Height="30" Width="30" DockPanel.Dock="Left">
-                        <Ellipse.Fill>
-                            <ImageBrush ImageSource="{Binding Path=Photo, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Stretch="Fill"/>
-                        </Ellipse.Fill>
-                    </Ellipse>
-                    <TextBlock DockPanel.Dock="Left" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="16 0 0 0">Vlad Tymoshchuk</TextBlock>
+                        <Ellipse Height="30" Width="30" DockPanel.Dock="Left">
+                            <Ellipse.Fill>
+                                <ImageBrush ImageSource="{Binding Path=Photo, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Stretch="Fill"/>
+                            </Ellipse.Fill>
+                        </Ellipse>
+                        <TextBlock DockPanel.Dock="Left" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="16 0 0 0">Vlad Tymoshchuk</TextBlock>
 
-                    <Button HorizontalAlignment="Right" DockPanel.Dock="Right" Style="{DynamicResource MaterialDesignToolForegroundButton}" Margin="8 0 0 0" Panel.ZIndex="0">
-                        <materialDesign:PackIcon Kind="Settings" />
-                    </Button>
-                    
-                    <materialDesign:ColorZone DockPanel.Dock="Right" HorizontalAlignment="Right" Mode="PrimaryLight"  Padding="8 0 8 0" CornerRadius="2" Panel.ZIndex="1"
+                        <Button HorizontalAlignment="Right" DockPanel.Dock="Right" Style="{DynamicResource MaterialDesignToolForegroundButton}" Margin="8 0 0 0" Panel.ZIndex="0">
+                            <materialDesign:PackIcon Kind="Settings" />
+                        </Button>
+
+                        <materialDesign:ColorZone DockPanel.Dock="Right" HorizontalAlignment="Right" Mode="PrimaryLight"  Padding="8 0 8 0" CornerRadius="2" Panel.ZIndex="1"
                                    Margin="2 0 0 2"
                                    materialDesign:ShadowAssist.ShadowDepth="Depth1">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                                
-                            </Grid.ColumnDefinitions>
-                            <Button Style="{DynamicResource MaterialDesignToolButton}">
-                                <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
-                            </Button>
-                            <TextBox Grid.Column="1" Margin="8 0 0 0" materialDesign:HintAssist.Hint="Search a messages" 
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+
+                                </Grid.ColumnDefinitions>
+                                <Button Style="{DynamicResource MaterialDesignToolButton}">
+                                    <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
+                                </Button>
+                                <TextBox Grid.Column="1" Margin="8 0 0 0" materialDesign:HintAssist.Hint="Search a messages" 
                                      materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"
                                      MinWidth="20" VerticalAlignment="Center" />
-                            
-                        </Grid>
-                    </materialDesign:ColorZone>
 
-                </DockPanel>
-            </materialDesign:ColorZone>
+                            </Grid>
+                        </materialDesign:ColorZone>
 
-            <materialDesign:ColorZone DockPanel.Dock="Bottom" Mode="PrimaryDark" CornerRadius="5"
-                                    materialDesign:ShadowAssist.ShadowDepth="Depth2" Margin="5" VerticalAlignment="Bottom">
-                <DockPanel>
+                    </DockPanel>
+                </materialDesign:ColorZone>
 
-                    <Button Style="{DynamicResource MaterialDesignFlatButton}" DockPanel.Dock="Right" Width="50"
+                <materialDesign:ColorZone DockPanel.Dock="Bottom" Mode="PrimaryDark" CornerRadius="8"
+                                    materialDesign:ShadowAssist.ShadowDepth="Depth2" Margin="6">
+                    <DockPanel>
+
+                        <Button Style="{DynamicResource MaterialDesignFlatButton}" DockPanel.Dock="Right" Width="50"
                             IsDefault="True" VerticalAlignment="Bottom">
-                        <materialDesign:PackIcon Kind="Send" VerticalAlignment="Bottom" />
-                    </Button>
-                    <TextBox x:Name="MessageTextBox" Margin="8 2 0 2" MaxHeight="150" materialDesign:HintAssist.Hint="Write a Message" 
+                            <materialDesign:PackIcon Kind="Send" VerticalAlignment="Bottom" />
+                        </Button>
+                        <TextBox x:Name="MessageTextBox" Margin="8 0 0 3" MaxHeight="130"
+                            materialDesign:HintAssist.Hint="Write a Message"
                             AcceptsReturn="True"
                             VerticalScrollBarVisibility="Hidden"
-                            TextWrapping="Wrap"/>
-                </DockPanel>
-            </materialDesign:ColorZone>
+                            TextWrapping="Wrap" MaxLength="1000"/>
+                    </DockPanel>
+                </materialDesign:ColorZone>
 
-            <ListBox>
+                <ListBox ItemsSource="{Binding Messages}"
+                     HorizontalContentAlignment="Stretch"
+                     ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                     Name="messageListBox" materialDesign:RippleAssist.IsDisabled="True">
+                </ListBox>
 
-            </ListBox>
-        </DockPanel>
-
-    </Grid>
+            </DockPanel>
+        </Grid>
+    </materialDesign:DialogHost>
 </Window>

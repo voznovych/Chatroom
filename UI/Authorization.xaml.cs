@@ -1,5 +1,6 @@
 ﻿using BLL;
 using UI.Domain;
+//using UI.Controls;
 using MaterialDesignThemes.Wpf;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
+
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -77,6 +78,10 @@ namespace UI
 
             CountryComboBox.ItemsSource = _bll.GetAllCountries();
             CountryComboBox.DisplayMemberPath = "Name";
+
+            //LoginTextBox.Text = "test44";
+            //PasswordBox.Password = "123456";
+            //SignIn();
         }
 
         private bool IsSetedRequiredFieldsForSignIn()
