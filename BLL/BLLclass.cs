@@ -69,7 +69,8 @@ namespace BLL
             var messages = _dal.Rooms.GetAll()
                                .Where(r => r.Id == roomId)
                                .SelectMany(r => r.Messages)
-                               .Where(m => m.Text.Contains(text));
+                               .Where(m => m.Text.Contains(text))
+                               .OrderBy(m => m.DateOfSend);
 
             return ConvertMessagesToMessageInfs(messages);
         }
@@ -82,7 +83,8 @@ namespace BLL
             var messages = _dal.Users.GetAll().Where(u => u.Id == AuthenticatedUser.Id)
                                               .SelectMany(u => u.Rooms)
                                               .SelectMany(r => r.Messages)
-                                              .Where(m => m.Text.Contains(text));
+                                              .Where(m => m.Text.Contains(text))
+                                              .OrderBy(m => m.DateOfSend);
 
             return ConvertMessagesToMessageInfs(messages);
         }
