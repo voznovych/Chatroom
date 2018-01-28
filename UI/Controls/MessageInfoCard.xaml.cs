@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace UI
 {
     /// <summary>
-    /// Interaction logic for RoomInfoBox.xaml
+    /// Interaction logic for MessageInfoCard.xaml
     /// </summary>
-    public partial class RoomInfoBox : UserControl
+    public partial class MessageInfoCard : UserControl
     {
-        public RoomInfoBox()
+        public MessageInfoCard()
         {
             InitializeComponent();
         }

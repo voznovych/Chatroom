@@ -8,8 +8,8 @@ namespace DAL.Interfaces
 {
     public interface IDALUsers
     {
-        void AddUser(User user);
-        void UpdateUser(User user);
+        void Add(User user);
+        void Update(User user);
         IQueryable<User> GetAll();
     }
 }

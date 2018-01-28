@@ -24,6 +24,7 @@ namespace DAL
         public DALClass()
         {
             _ctx = new ChatRoomContext();
+
             Countries = new DALCountries(_ctx);
             Genres = new DALGenres(_ctx);
             Messages = new DALMessages(_ctx);

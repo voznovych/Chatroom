@@ -50,10 +50,9 @@ namespace BLL
         {
             if (byteArrayIn == null)
                 return null;
-
+            
             MemoryStream ms = new MemoryStream(byteArrayIn);
-            System.Drawing.Image returnImage = System.Drawing.Image.FromStream(ms);
-            return returnImage;
+            return System.Drawing.Image.FromStream(ms);
         }
 
         public static ImageSource ImageToImageSource(System.Drawing.Image image)

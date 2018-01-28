@@ -105,7 +105,7 @@ namespace DAL
         public string Password { get; set; }
         public string Name { get; set; }
         public string Surname { get; set; }
-        public DateTime? DateOfBirth { get; set; }
+        public DateTime? BirthDate { get; set; }
         public int SexId { get; set; }
         public virtual Sex Sex { get; set; }
         public int? CountryId { get; set; }

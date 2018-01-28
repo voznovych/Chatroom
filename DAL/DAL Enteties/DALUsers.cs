@@ -16,7 +16,7 @@ namespace DAL.DAL_Enteties
             _ctx = ctx;
         }
 
-        public void AddUser(User user)
+        public void Add(User user)
         {
             _ctx.Users.Add(user);
             _ctx.SaveChanges();
@@ -27,19 +27,20 @@ namespace DAL.DAL_Enteties
             return _ctx.Users;
         }
 
-        public void UpdateUser(User user)
+        public void Update(User newUser)
         {
-            User temp = _ctx.Users.FirstOrDefault(u=> u.Id == user.Id);
-            temp.CountryId = user.CountryId;
-            temp.DateOfBirth = user.DateOfBirth;
-            temp.Login = user.Login;
-            temp.Name = user.Name;
-            temp.Password = temp.Password;
-            temp.Photo = user.Photo;
-            temp.SexId = user.SexId;
-            temp.StatusId = user.StatusId;
-            temp.Surname = user.Surname;
-            //_ctx.Entry(temp).State = System.Data.Entity.EntityState.Modified;
+            var user = _ctx.Users.Find(newUser.Id);
+
+            user.Photo = newUser.Photo;
+            user.Login = newUser.Login;
+            user.Password = newUser.Password;
+            user.Name = newUser.Name;
+            user.Surname = newUser.Surname;
+            user.BirthDate = newUser.BirthDate;
+            user.SexId = newUser.SexId;
+            user.CountryId = newUser.CountryId;
+            user.StatusId = newUser.StatusId;
+
             _ctx.SaveChanges();
         }
     }

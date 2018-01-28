@@ -16,7 +16,7 @@ namespace UI.Domain
         private string _surname;
         private string _login;
         private string _sex;
-        
+
         public TextFieldsViewModel()
         {
             Name = null;

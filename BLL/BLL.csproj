@@ -58,7 +58,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BLLclass.cs" />
-    <Compile Include="Converter.cs" />
+    <Compile Include="DTO Enteties\CountryDTO.cs" />
+    <Compile Include="DTO Enteties\CreateRoomData.cs" />
+    <Compile Include="DTO Enteties\GenreDTO.cs" />
+    <Compile Include="DTO Enteties\MessageDTO.cs" />
+    <Compile Include="DTO Enteties\RoomDTO.cs" />
+    <Compile Include="DTO Enteties\RoomInfo.cs" />
+    <Compile Include="DTO Enteties\SexDTO.cs" />
+    <Compile Include="DTO Enteties\UserDTO.cs" />
+    <Compile Include="DTO Enteties\UserInfo.cs" />
+    <Compile Include="DTO Enteties\UserStatusDTO.cs" />
+    <Compile Include="DTO Enteties\VisitInfoDTO.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DTO Enteties\SignUpUserData.cs" />
     <Compile Include="Util.cs" />

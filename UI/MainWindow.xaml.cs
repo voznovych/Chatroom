@@ -1,153 +1,113 @@
 ﻿using BLL;
+using MaterialDesignThemes.Wpf;
 using System;
-using System.ComponentModel;
-using System.IO;
-using System.Runtime.CompilerServices;
 using System.Windows;
-//using System.Windows.Controls;
 using System.Windows.Media;
+using UI.Controls;
+using UI.ViewModels;
 
 namespace UI
 {
+    public delegate void RoomIBoxClick(RoomInfoBox roomInfoBox);
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
+        #region Private properties
         private readonly BLLClass _bll;
+        private bool _isGlobalSearch;
+
+        private RoomInfoBox _selectedRoom;
+
+        private RoomsViewModel _roomsViewModel;
+        #endregion
+
+        #region Public properties
+        public RoomInfoBox SelectedRoom
+        {
+            get { return _selectedRoom; }
+            set
+            {
+                if (_selectedRoom != null)
+                {
+                    _selectedRoom.IsSelected = false;
+                }
+                _selectedRoom = value;
+            }
+        }
+        public bool IsGlobalSearch
+        {
+            get { return _isGlobalSearch; }
+            set
+            {
+                if (value)
+                {
+                    globalSearchButton.Foreground = this.FindResource("SecondaryAccentBrush") as Brush;
+                    _isGlobalSearch = value;
+                }
+                else
+                {
+                    globalSearchButton.Foreground = this.FindResource("PrimaryHueDarkBrush") as Brush;
+                    _isGlobalSearch = value;
+                }
+            }
+        }
+        #endregion
 
         public MainWindow(BLLClass bll)
         {
             InitializeComponent();
             _bll = bll;
 
-            const int count = 9;
+            _roomsViewModel = new RoomsViewModel(_bll.GetInfosAboutAllUserRooms(), Room_Click);
+            roomsList.DataContext = _roomsViewModel;
+            //messagesList.DataContext = new MessageViewModel();
 
-            RoomDTO[] roomArr = new RoomDTO[count];
-
-            for (int i = 0; i < count; i++)
-            {
-                roomArr[i] = new RoomDTO()
-                {
-                    Name = "Test Room",
-                    Photo = Util.ByteArrayToImage(File.ReadAllBytes("Resources/avatar_m.png"))
-                };
-            }
-
-            MessageDTO[] msArr = new MessageDTO[count];
-
-            for (int i = 0; i < count; i++)
-            {
-                msArr[i] = new MessageDTO()
-                {
-                    Text = "Hello pidor andty, ya tia diuznu hhhnfhf ghfhhfhh fgghff hffdsf",
-                    DateOfSend = DateTime.Now,
-                    User = new UserDTO() { Name = "Vlad" }
-                };
-            }
-
-            RoomInfo[] riArr = new RoomInfo[count];
-            Random rnd = new Random();
-
-            for (int i = 0; i < count; i++)
-            {
-                riArr[i] = new RoomInfo()
-                {
-                    Room = roomArr[i],
-                    Message = msArr[i],
-                    UnreadMessages = rnd.Next(3)
-                };
-            }
-
-            RoomInfoBox[] ribArr = new RoomInfoBox[count];
-
-            for (int i = 0; i < count; i++)
-            {
-                ribArr[i] = new RoomInfoBox()
-                {
-                    DataContext = riArr[i]
-                };
-                //roomsListBox.Items.Add(ribArr[i]);
-            }
-
-            roomsListBox.ItemsSource = ribArr;
-        }
-    }
-
-    class RoomInfo : INotifyPropertyChanged
-    {
-        public RoomDTO Room { get; set; }
-        public MessageDTO Message { get; set; }
-        private int _unreadMessages;
-        private ImageSource _photo;
-
-        public int? UnreadMessages
-        {
-            get { return _unreadMessages == 0 ? null : (int?)_unreadMessages; }
-
-            set
-            {
-                _unreadMessages = value.Value;
-                OnPropertyChanged("UnreadMessages");
-            }
+            IsGlobalSearch = false;
         }
 
-        public string Text
+        private void Room_Click(RoomInfoBox roomInfoBox)
         {
-            get { return Message.Text; }
-            set
-            {
-                Message.Text = value;
-                OnPropertyChanged("Text");
-            }
+            SelectedRoom = roomInfoBox;
         }
 
-        public string DateOfSend
+        private void CreateRoomButton_Click(object sender, RoutedEventArgs e)
         {
-            get { return Message.DateOfSend.Day == DateTime.Now.Day ? Message.DateOfSend.ToShortTimeString() : Message.DateOfSend.ToShortDateString(); }
-            set
-            {
-                //Message.DateOfSend = value;
-                OnPropertyChanged("DateOfSend");
-            }
+            var dialog = new RoomInfoDialog(_bll);
+            DialogHost.Show(dialog, "MainWindow");
+        }
+        private void UserDetails_Button_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new UserInfoDialog(_bll);
+            DialogHost.Show(dialog, "MainWindow");
         }
 
-        public ImageSource Photo
+        private void GlobalSearchButton_Click(object sender, RoutedEventArgs e)
         {
-            get { return Util.ImageToImageSource(Room.Photo); }
-            set
-            {
-                _photo = value;
-                OnPropertyChanged("Photo");
-            }
+            IsGlobalSearch = !IsGlobalSearch;
+        }
+        private void MainWindow_Closed(object sender, EventArgs e)
+        {
+            _bll.Logout();
         }
 
-        public string Name
+        private void Button_Click(object sender, RoutedEventArgs e)
         {
-            get { return Room.Name; }
-            set
-            {
-                Room.Name = value;
-                OnPropertyChanged("Name");
-            }
+            //_roomsViewModel.Update();
+            _roomsViewModel.Sort();
         }
 
-        public string SenderName
+        private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            get { return Message.User.Name; }
-            set
-            {
-                Message.User.Name = value;
-                OnPropertyChanged("SenderName");
-            }
+            //_bll.EditRoomTest(1);
         }
 
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void OnPropertyChanged([CallerMemberName]string prop = "")
+        // Search our rooms
+        private void TextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
+            _roomsViewModel.Filter(SearchTectBlock.Text);
         }
     }
 }

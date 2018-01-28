@@ -8,10 +8,6 @@ namespace DAL
 {
     class ChatRoomInitializer : DropCreateDatabaseIfModelChanges<ChatRoomContext>
     {
-        private const string STATUS_ONLINE = "Online";
-        private const string STATUS_OFFLINE = "Offline";
-        private const string STATUS_DND = "Do not disturb";
-        
         protected override void Seed(ChatRoomContext context)
         {
             List<Genre> genres = new List<Genre>
@@ -39,9 +35,9 @@ namespace DAL
 
             List<UserStatus> userStatuses = new List<UserStatus>
             {
-                new UserStatus { Name = STATUS_ONLINE },
-                new UserStatus { Name = STATUS_OFFLINE },
-                new UserStatus { Name = STATUS_DND },
+                new UserStatus { Name = "Online" },
+                new UserStatus { Name = "Offline" },
+                new UserStatus { Name = "Do not disturb" },
             };
             context.UserStatuses.AddRange(userStatuses);
 

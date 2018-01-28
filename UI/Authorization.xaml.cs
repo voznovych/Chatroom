@@ -2,22 +2,11 @@
 using UI.Domain;
 using MaterialDesignThemes.Wpf;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using BLL;
+using BLL.DTO_Enteties;
 
 namespace UI
 {
@@ -29,11 +18,11 @@ namespace UI
     public partial class Authorization : Window
     {
         private readonly BLLClass _bll;
-        private Operation selectedOp;
+        private Operation _selectedOp;
 
         public Operation SelectedOp
         {
-            get { return selectedOp; }
+            get { return _selectedOp; }
             set
             {
                 switch (value)
@@ -46,7 +35,7 @@ namespace UI
                         SignUpCard.Foreground = this.FindResource("SecondaryAccentForegroundBrush") as Brush;
 
                         SignUpAdditionalGrid.Visibility = Visibility.Collapsed;
-                        selectedOp = value;
+                        _selectedOp = value;
                         break;
 
                     case Operation.SIGN_UP:
@@ -57,7 +46,7 @@ namespace UI
                         SignInCard.Foreground = this.FindResource("SecondaryAccentForegroundBrush") as Brush;
 
                         SignUpAdditionalGrid.Visibility = Visibility.Visible;
-                        selectedOp = value;
+                        _selectedOp = value;
                         break;
                 }
             }
@@ -77,6 +66,10 @@ namespace UI
 
             CountryComboBox.ItemsSource = _bll.GetAllCountries();
             CountryComboBox.DisplayMemberPath = "Name";
+
+            LoginTextBox.Text = "tests44";
+            PasswordBox.Password = "123456";
+            SignIn();
         }
 
         private bool IsSetedRequiredFieldsForSignIn()
@@ -99,12 +92,12 @@ namespace UI
         {
             if (!IsSetedRequiredFieldsForSignUp())
             {
-                ShowSampleMessageDialog("Some of required fields are not setted!");
+                throw new Exception("Some of required fields are not setted!");
             }
 
             if (PasswordBox.Password != ConfirmedPasswordBox.Password)
             {
-                ShowSampleMessageDialog("Passwords don't match");
+                throw new Exception("Passwords don't match");
             }
 
             SignUpUserData registrationData = new SignUpUserData()
@@ -118,6 +111,19 @@ namespace UI
                 Country = CountryComboBox.SelectedItem as CountryDTO
             };
 
+            switch (registrationData.Sex.Name)
+            {
+                case "Male":
+                    registrationData.Photo = File.ReadAllBytes("Resources/avatar_m.png");
+                    break;
+                case "Female":
+                    registrationData.Photo = File.ReadAllBytes("Resources/avatar_f.png");
+                    break;
+                default:
+                    registrationData.Photo = File.ReadAllBytes("Resources/no_photo.png");
+                    break;
+            }
+
             RegistrationResult result = _bll.SignUp(registrationData);
 
             switch (result)
@@ -126,33 +132,26 @@ namespace UI
                     SignIn();
                     break;
                 case RegistrationResult.LoginIsAlreadyExist:
-                    ShowSampleMessageDialog("Login is already exist!");
-                    break;
+                    throw new Exception("Login is already exist!");
                 case RegistrationResult.LoginIsInvalidOrEmpty:
-                    ShowSampleMessageDialog("Login is invalid or empty!");
-                    break;
+                    throw new Exception("Login is invalid or empty!");
                 case RegistrationResult.NameIsInvalidOrEmpty:
-                    ShowSampleMessageDialog("Name is invalid or empty!");
-                    break;
+                    throw new Exception("Name is invalid or empty!");
                 case RegistrationResult.SurnameIsInvalidOrEmpty:
-                    ShowSampleMessageDialog("Surname is invalid or empty!");
-                    break;
+                    throw new Exception("Surname is invalid or empty!");
                 case RegistrationResult.PasswordIsInvalidOrEmpty:
-                    ShowSampleMessageDialog("Password is invalid or empty!");
-                    break;
+                    throw new Exception("Password is invalid or empty!");
                 case RegistrationResult.SexIsInvalidOrNotSelected:
-                    ShowSampleMessageDialog("Sex is not selected!");
-                    break;
+                    throw new Exception("Sex is not selected!");
                 case RegistrationResult.BirthDateIsInvalidOrNotSelected:
-                    ShowSampleMessageDialog("Date of birth is invalid or not selected!");
-                    break;
+                    throw new Exception("Date of birth is invalid or not selected!");
             }
         }
         private void SignIn()
         {
             if (!IsSetedRequiredFieldsForSignIn())
             {
-                ShowSampleMessageDialog("Some of required fields are not setted!");
+                throw new Exception("Some of required fields are not setted!");
             }
 
             LoginResult result = _bll.Login(LoginTextBox.Text, PasswordBox.Password);
@@ -164,11 +163,11 @@ namespace UI
             }
             else if (result == LoginResult.LoginIsNotExist)
             {
-                ShowSampleMessageDialog("Such login isn't exist!");
+                throw new Exception("Such login isn't exist!");
             }
-            else if(result == LoginResult.PasswordIsWrong)
+            else if (result == LoginResult.PasswordIsWrong)
             {
-                ShowSampleMessageDialog("Wrong password!");
+                throw new Exception("Wrong password!");
             }
         }
 

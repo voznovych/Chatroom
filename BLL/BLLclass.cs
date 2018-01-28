@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using BLL;
 using DAL.Interfaces;
+using BLL.DTO_Enteties;
 
 namespace BLL
 {
@@ -18,7 +19,6 @@ namespace BLL
         LoginIsNotExist,
         PasswordIsWrong
     }
-
     public enum RegistrationResult
     {
         Success,
@@ -30,184 +30,83 @@ namespace BLL
         BirthDateIsInvalidOrNotSelected,
         SexIsInvalidOrNotSelected,
     }
+    public enum UpdateResult
+    {
+        Success,
+        NameIsInvalid,
+        SurnameIsInvalid,
+        PasswordIsInvalid,
+        BirthDateIsInvalid,
+        SexIsInvalid,
+    }
 
     public class BLLClass
     {
-        const int HUNDRED_YEARS_BEFORE = -100;
+        #region Private properties
         private const string STATUS_ONLINE = "Online";
         private const string STATUS_OFFLINE = "Offline";
         private const string STATUS_DND = "Do not disturb";
 
+        const int HUNDRED_YEARS_BEFORE = -100;
         private string LoginPattern { get; set; } = @"^[a-zA-Z]\w{5,19}$";
         private string PasswordPattern { get; set; } = @"\w{6,25}";
 
         private readonly IDAL _dal;
         private User AuthenticatedUser { get; set; }
-
-        public class MessageInf
-        {
-            public int Id { get; set; }
-            public string Text { get; set; }
-            public DateTime Date { get; set; }
-            public Sender Sender { get; set; }
-        }
-
-        public class Sender
-        {
-            public int SenderId { get; set; }
-            public string FullName { get; set; }
-            public Image Photo { get; set; }
-
-        }
-
-        private IEnumerable<MessageInf> ConvertMessagesToMessageInfs(IQueryable<Message> msgs)
-        {
-            return msgs.Select(m => new MessageInf
-            {
-                Id = m.Id,
-                Date = m.DateOfSend,
-                Text = m.Text,
-                Sender = new Sender
-                {
-                    FullName = m.User.Surname + " " + m.User.Name,
-                    Photo = Util.ByteArrayToImage(m.User.Photo),
-                    SenderId = m.UserId,
-                }
-            });
-        }
-
-        public IEnumerable<MessageInf> GetMessagesOfRoom(int RoomId)
-        {
-            if (_dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Count() == 0)
-            {
-                throw new Exception("Room couldn't be founded!");
-            }
-            return ConvertMessagesToMessageInfs(_dal.Messages.GetAll().Where(m => m.RoomId == RoomId).OrderBy(m => m.DateOfSend));
-        }
-
-        public IEnumerable<MessageInf> GetNPackOfMessages(int RoomId, int NumberofPack, int AmountOfMsgsInPack)
-        {
-            if (_dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Count() == 0)
-            {
-                throw new Exception("Room couldn't be founded!");
-            }
-            IQueryable<Message> msgs = _dal.Messages.GetAll().Where(m => m.RoomId == RoomId).OrderBy(m => m.DateOfSend);
-            int count = msgs.Count();
-            if (count < NumberofPack * AmountOfMsgsInPack - AmountOfMsgsInPack)
-            {
-                msgs = null;
-            }
-            else
-            {
-                msgs = msgs.Skip(NumberofPack * AmountOfMsgsInPack - AmountOfMsgsInPack).Take(AmountOfMsgsInPack);
-            }
-            return ConvertMessagesToMessageInfs(msgs);
-        }
-
-        public IEnumerable<MessageInf> GetNewMessages(int RoomId)
-        {
-            if (_dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Count() == 0)
-            {
-                throw new Exception("Room couldn't be founded!");
-            }
-            var msgs = _dal.Messages.GetAll().Where(m => m.RoomId == RoomId).OrderBy(m => m.DateOfSend);
-            var lastVisit = _dal.VisitInfos.GetAll().FirstOrDefault(vi => vi.RoomId == RoomId && vi.UserId == AuthenticatedUser.Id).LastDateOfVisit;
-            return ConvertMessagesToMessageInfs(msgs.SkipWhile(m => m.DateOfSend < lastVisit));
-        }
+        #endregion
 
         static BLLClass()
         {
             // Init AutoMapper
             Mapper.Initialize(cfg =>
             {
-                // entity to dto
+                #region Entity to DTO
                 cfg.CreateMap<User, UserDTO>()
                     .ForMember(dest => dest.Photo,
-                        opts => opts.Ignore())
-                    //opts => opts.MapFrom(src => Util.ByteArrayToImage(src.Photo)))
-                    .ForMember(dest => dest.CreatedRooms,
-                        opts => opts.Ignore())
-                    .ForMember(dest => dest.Messages,
-                        opts => opts.Ignore())
-                    .ForMember(dest => dest.Rooms,
-                        opts => opts.Ignore())
-                    .ForMember(dest => dest.VisitInfos,
-                        opts => opts.Ignore());
+                        opts => opts.MapFrom(src => Util.ByteArrayToImage(src.Photo)));
 
                 cfg.CreateMap<Room, RoomDTO>()
                     .ForMember(dest => dest.Photo,
-                            opts => opts.Ignore())
-                    .ForMember(dest => dest.Messages,
-                        opts => opts.Ignore())
-                    .ForMember(dest => dest.Users,
-                        opts => opts.Ignore())
-                    .ForMember(dest => dest.VisitInfos,
-                        opts => opts.Ignore());
+                            opts => opts.MapFrom(src => Util.ByteArrayToImage(src.Photo)));
 
-                cfg.CreateMap<Sex, SexDTO>()
-                    .ForMember(dest => dest.Users,
-                        opts => opts.Ignore());
+                cfg.CreateMap<Sex, SexDTO>();
 
-                cfg.CreateMap<Country, CountryDTO>()
-                    .ForMember(dest => dest.Users,
-                        opts => opts.Ignore());
+                cfg.CreateMap<Country, CountryDTO>();
 
-                cfg.CreateMap<UserStatus, UserStatusDTO>()
-                    .ForMember(dest => dest.Users,
-                        opts => opts.Ignore());
+                cfg.CreateMap<UserStatus, UserStatusDTO>();
 
-                cfg.CreateMap<VisitInfo, VisitInfoDTO>();
+                //cfg.CreateMap<VisitInfo, VisitInfoDTO>();
 
-                cfg.CreateMap<Message, MessageDTO>();
+                //cfg.CreateMap<Message, MessageDTO>();
 
-                cfg.CreateMap<Genre, GenreDTO>()
-                    .ForMember(dest => dest.Rooms,
-                        opts => opts.Ignore());
+                cfg.CreateMap<Genre, GenreDTO>();
+                #endregion
 
-                // dto to entity
+                #region DTO to Entity
                 cfg.CreateMap<UserDTO, User>()
                     .ForMember(dest => dest.Photo,
-                        opts => opts.Ignore())
-                    //opts => opts.MapFrom(src => Util.ImageToByteArray(src.Photo)))
-                    .ForMember(dest => dest.CreatedRooms,
-                        opts => opts.Ignore())
-                    .ForMember(dest => dest.Messages,
-                        opts => opts.Ignore())
-                    .ForMember(dest => dest.Rooms,
-                        opts => opts.Ignore())
-                    .ForMember(dest => dest.VisitInfos,
-                        opts => opts.Ignore());
+                        opts => opts.MapFrom(src => Util.ImageToByteArray(src.Photo)));
 
                 cfg.CreateMap<RoomDTO, Room>()
                     .ForMember(dest => dest.Photo,
-                            opts => opts.Ignore())
-                    .ForMember(dest => dest.Messages,
-                        opts => opts.Ignore())
-                    .ForMember(dest => dest.Users,
-                        opts => opts.Ignore())
-                    .ForMember(dest => dest.VisitInfos,
+                            opts => opts.MapFrom(src => Util.ImageToByteArray(src.Photo)));
+
+                cfg.CreateMap<SexDTO, Sex>();
+
+                cfg.CreateMap<CountryDTO, Country>();
+
+                cfg.CreateMap<UserStatusDTO, UserStatus>();
+
+                //cfg.CreateMap<VisitInfoDTO, VisitInfo>();
+
+                //cfg.CreateMap<MessageDTO, Message>();
+
+                cfg.CreateMap<GenreDTO, Genre>();
+                #endregion
+
+                cfg.CreateMap<User, UserInfo>()
+                    .ForMember(dest => dest.Password,
                         opts => opts.Ignore());
-
-                cfg.CreateMap<Sex, SexDTO>()
-                    .ForMember(dest => dest.Users,
-                        opts => opts.Ignore());
-
-                cfg.CreateMap<Country, CountryDTO>()
-                    .ForMember(dest => dest.Users,
-                        opts => opts.Ignore());
-
-                cfg.CreateMap<UserStatus, UserStatusDTO>()
-                    .ForMember(dest => dest.Users,
-                        opts => opts.Ignore());
-
-                cfg.CreateMap<VisitInfo, VisitInfoDTO>();
-
-                cfg.CreateMap<Message, MessageDTO>();
-
-                cfg.CreateMap<Genre, GenreDTO>()
-                    .ForMember(dest => dest.Rooms,
-                        opts => opts.Ignore());
-
             });
         }
         public BLLClass()
@@ -233,7 +132,6 @@ namespace BLL
         }
         public IEnumerable<RoomInfo> FindUserRooms(string name, int genreId)
         {
-
             if (genreId == -1)
             {
                 var rooms = _dal.Users.GetAll()
@@ -287,53 +185,7 @@ namespace BLL
             _dal.Users.UpdateUser(AuthenticatedUser);
         }
 
-        private User GetUserByLogin(string login)
-        {
-            return _dal.Users.GetAll().First(u => u.Login == login);
-        }
-
-        public LoginResult Login(string login, string password)
-        {
-            if (!IsLoginExist(login))
-            {
-                return LoginResult.LoginIsNotExist;
-            }
-
-            if (!IsPasswordRight(login, password))
-            {
-                return LoginResult.PasswordIsWrong;
-            }
-
-            AuthenticatedUser = GetUserByLogin(login);
-            AuthenticatedUser.StatusId = GetUserStatusId(STATUS_ONLINE);
-            UpdateUser();
-
-            return LoginResult.Success;
-        }
-
-        public bool SendMessage(int roomId, string text)
-        {
-            if (AuthenticatedUser == null)
-                return false;
-
-            _dal.Messages.Add(new Message()
-            {
-                UserId = AuthenticatedUser.Id,
-                RoomId = roomId,
-                Text = text,
-                DateOfSend = DateTime.Now
-            });
-
-            return true;
-        }
-
-        public void Logout()
-        {
-            AuthenticatedUser.StatusId = GetUserStatusId(STATUS_OFFLINE);
-            UpdateUser();
-            AuthenticatedUser = null;
-        }
-
+        #region Public methods
         public RegistrationResult SignUp(SignUpUserData data)
         {
             if (!IsValidLogin(data.Login))
@@ -365,12 +217,257 @@ namespace BLL
                 return RegistrationResult.SexIsInvalidOrNotSelected;
             }
 
-            User registeredUser = CreateUser(data.Login, data.Password, data.Name, data.Surname, data.BirthDate.Value,
-                                                data.Sex.Id, data.Country?.Id);
+            User registeredUser = new User()
+            {
+                Login = data.Login,
+                Password = Util.GetHashString(data.Password),
+                Name = data.Name,
+                Surname = data.Surname,
+                BirthDate = data.BirthDate,
+                SexId = data.Sex.Id,
+                CountryId = data.Country?.Id,
+                Photo = data.Photo
+            };
+
+            registeredUser.StatusId = GetUserStatusId(STATUS_OFFLINE);
             AddUser(registeredUser);
 
             return RegistrationResult.Success;
         }
+        public LoginResult Login(string login, string password)
+        {
+            if (!IsLoginExist(login))
+            {
+                return LoginResult.LoginIsNotExist;
+            }
+
+            if (!IsPasswordRight(login, password))
+            {
+                return LoginResult.PasswordIsWrong;
+            }
+
+            AuthenticatedUser = GetUserByLogin(login);
+            AuthenticatedUser.StatusId = GetUserStatusId(STATUS_ONLINE);
+            UpdateUser();
+
+            return LoginResult.Success;
+        }
+        public void Logout()
+        {
+            AuthenticatedUser.StatusId = GetUserStatusId(STATUS_OFFLINE);
+            UpdateUser();
+            AuthenticatedUser = null;
+        }
+
+        public UpdateResult UpdateUserInfo(UserInfo user)
+        {
+            if (user.Password != null && !IsValidPassword(user.Password))
+            {
+                return UpdateResult.PasswordIsInvalid;
+            }
+            else if (user.Name != null && !IsValidName(user.Name))
+            {
+                return UpdateResult.NameIsInvalid;
+            }
+            else if (user.Surname != null && !IsValidName(user.Surname))
+            {
+                return UpdateResult.SurnameIsInvalid;
+            }
+            else if (user.BirthDate.HasValue && !IsValidBirthDate(user.BirthDate.Value))
+            {
+                return UpdateResult.BirthDateIsInvalid;
+            }
+            else if (!IsValidSex(user.Sex))
+            {
+                return UpdateResult.SexIsInvalid;
+            }
+
+            AuthenticatedUser.Photo = user.Photo == null ? this.AuthenticatedUser.Photo : Util.ImageToByteArray(user.Photo);
+            AuthenticatedUser.Password = user.Password == null ? this.AuthenticatedUser.Password : Util.GetHashString(user.Password);
+            AuthenticatedUser.Name = user.Name ?? this.AuthenticatedUser.Name;
+            AuthenticatedUser.Surname = user.Surname ?? this.AuthenticatedUser.Surname;
+            AuthenticatedUser.BirthDate = !user.BirthDate.HasValue ? this.AuthenticatedUser.BirthDate : user.BirthDate;
+            AuthenticatedUser.SexId = user.Sex == null ? this.AuthenticatedUser.SexId : user.Sex.Id;
+            AuthenticatedUser.CountryId = user.Country == null ? this.AuthenticatedUser.CountryId : user.Country.Id;
+
+            UpdateUser();
+
+            return UpdateResult.Success;
+        }
+        public UserInfo GetUserInfo()
+        {
+            return Mapper.Map<User, UserInfo>(AuthenticatedUser);
+        }
+
+        public IEnumerable<SexDTO> GetAllSexes()
+        {
+            return Mapper.Map<IQueryable<Sex>, IEnumerable<SexDTO>>(_dal.Sexes.GetAll());
+        }
+        public IEnumerable<CountryDTO> GetAllCountries()
+        {
+            return Mapper.Map<IQueryable<Country>, IEnumerable<CountryDTO>>(_dal.Countries.GetAll());
+        }
+        public IEnumerable<GenreDTO> GetAllGenres()
+        {
+            return Mapper.Map<IQueryable<Genre>, IEnumerable<GenreDTO>>(_dal.Genres.GetAll());
+        }
+
+        public IEnumerable<MessageInf> FindMessagesInRoom(int roomId, string text)
+        {
+            //var messages = _dal.Rooms.GetAll()
+            //                   .FirstOrDefault(r => r.Id == roomId)
+            //                   ?.Messages.AsQueryable()
+            //                   .Where(m=>m.Text.Contains(text));
+
+            var messages = _dal.Rooms.GetAll()
+                               .Where(r => r.Id == roomId)
+                               .SelectMany(r => r.Messages)
+                               .Where(m => m.Text.Contains(text))
+                               .OrderBy(m => m.DateOfSend);
+
+            return ConvertMessagesToMessageInfs(messages);
+        }
+        public IEnumerable<MessageInf> FindMessages(string text)
+        {
+            //var messages = AuthenticatedUser.Rooms.AsQueryable()
+            //                                       .SelectMany(r => r.Messages)
+            //                                       .Where(m => m.Text.Contains(text));
+
+            var messages = _dal.Users.GetAll().Where(u => u.Id == AuthenticatedUser.Id)
+                                              .SelectMany(u => u.Rooms)
+                                              .SelectMany(r => r.Messages)
+                                              .Where(m => m.Text.Contains(text))
+                                              .OrderBy(m => m.DateOfSend);
+
+            return ConvertMessagesToMessageInfs(messages);
+        }
+
+        public void AddRoom(int id)
+        {
+            AuthenticatedUser.Rooms.Add(_dal.Rooms.GetAll().FirstOrDefault(r => r.Id == id));
+            UpdateUser();
+
+            _dal.VisitInfos.Add(new VisitInfo()
+            {
+                RoomId = id,
+                UserId = AuthenticatedUser.Id,
+                LastDateOfVisit = DateTime.Now
+            });
+        }
+        public void CreateRoom(CreateRoomData data)
+        {
+            var room = new Room()
+            {
+                Name = data.Name,
+                Description = data.Description,
+                GenreId = data.Genre.Id,
+                CreatorId = AuthenticatedUser.Id,
+                IsPersonal = data.IsPersonal,
+                IsPrivate = data.IsPrivate,
+                Photo = Util.ImageToByteArray(data.Photo),
+            };
+
+            _dal.Rooms.Add(room);
+            AddRoom(room.Id);
+        }
+
+        public IEnumerable<RoomInfo> GetInfosAboutAllUserRooms()
+        {
+            return _dal.Users.GetAll().First(u => u.Id == AuthenticatedUser.Id).
+                Rooms.Select(r => new RoomInfo
+                {
+                    Id = r.Id,
+                    AmountOfUnreadedMsgs = GetAmountOfUnreadedMessages(r.Id),
+                    Photo = Util.ByteArrayToImage(r.Photo),
+                    Name = r.Name,
+                    LastMessage = GetInfoAboutMessage(GetLastMessage(r.Id))
+                });
+        }
+
+        public bool SendMessage(int roomId, string text)
+        {
+            if (AuthenticatedUser == null)
+                return false;
+
+            _dal.Messages.Add(new Message()
+            {
+                UserId = AuthenticatedUser.Id,
+                RoomId = roomId,
+                Text = text,
+                DateOfSend = DateTime.Now
+            });
+
+            return true;
+        }
+
+        public IEnumerable<MessageInf> GetMessagesOfRoom(int RoomId)
+        {
+            if (_dal.Rooms.GetAll().FirstOrDefault(r => r.Id == RoomId) == null)
+            {
+                throw new Exception("Room couldn't be founded!");
+            }
+            return ConvertMessagesToMessageInfs(_dal.Messages.GetAll().Where(m => m.RoomId == RoomId).OrderBy(m => m.DateOfSend));
+        }
+        public IEnumerable<MessageInf> GetNPackOfMessages(int RoomId, int NumberofPack, int AmountOfMsgsInPack)
+        {
+            if (_dal.Rooms.GetAll().FirstOrDefault(r => r.Id == RoomId) == null)
+            {
+                throw new Exception("Room couldn't be founded!");
+            }
+            IQueryable<Message> msgs = _dal.Messages.GetAll().Where(m => m.RoomId == RoomId).OrderBy(m => m.DateOfSend);
+            int count = msgs.Count();
+            if (count < NumberofPack * AmountOfMsgsInPack - AmountOfMsgsInPack)
+            {
+                msgs = null;
+            }
+            else
+            {
+                msgs = msgs.Skip(NumberofPack * AmountOfMsgsInPack - AmountOfMsgsInPack).Take(AmountOfMsgsInPack);
+            }
+            return ConvertMessagesToMessageInfs(msgs);
+        }
+        public IEnumerable<MessageInf> GetNewMessages(int RoomId)
+        {
+            if (_dal.Rooms.GetAll().FirstOrDefault(r => r.Id == RoomId) == null)
+            {
+                throw new Exception("Room couldn't be founded!");
+            }
+            var msgs = _dal.Messages.GetAll().Where(m => m.RoomId == RoomId).OrderBy(m => m.DateOfSend);
+            var lastVisit = _dal.VisitInfos.GetAll().FirstOrDefault(vi => vi.RoomId == RoomId && vi.UserId == AuthenticatedUser.Id).LastDateOfVisit;
+            return ConvertMessagesToMessageInfs(msgs.SkipWhile(m => m.DateOfSend < lastVisit));
+        }
+        #endregion
+
+        #region Private methods
+        private void AddUser(User user)
+        {
+            _dal.Users.Add(user);
+        }
+        private User GetUserByLogin(string login)
+        {
+            return _dal.Users.GetAll().First(u => u.Login == login);
+        }
+        private void UpdateUser()
+        {
+            _dal.Users.Update(AuthenticatedUser);
+        }
+
+        private IEnumerable<MessageInf> ConvertMessagesToMessageInfs(IQueryable<Message> msgs)
+        {
+            return msgs.Select(m => new MessageInf
+            {
+                Id = m.Id,
+                Date = m.DateOfSend,
+                Text = m.Text,
+                Sender = new Sender
+                {
+                    FullName = m.User.Surname + " " + m.User.Name,
+                    Photo = Util.ByteArrayToImage(m.User.Photo),
+                    SenderId = m.UserId,
+                }
+            });
+        }
+
         private bool IsValidLogin(string login)
         {
             return !String.IsNullOrEmpty(login) && Regex.IsMatch(login, LoginPattern);
@@ -418,235 +515,82 @@ namespace BLL
             return _dal.Users.GetAll().First(u => u.Login == login).Password == Util.GetHashString(password);
         }
 
-        private User CreateUser(string login, string password, string name, string surname,
-                                    DateTime? birthDate, int sexId, int? countryId)
-        {
-            User user = new User()
-            {
-                Login = login,
-                Name = name,
-                Surname = surname,
-                SexId = sexId,
-                DateOfBirth = birthDate,
-            };
-            if (countryId.HasValue)
-            {
-                user.CountryId = countryId.Value;
-            }
-            user.StatusId = GetUserStatusId(STATUS_OFFLINE);
-            user.Password = Util.GetHashString(password);
-
-            return user;
-        }
-
         private int GetUserStatusId(string status)
         {
             return _dal.UserStatuses.GetAll().FirstOrDefault(s => s.Name == status).Id;
         }
-        public IEnumerable<SexDTO> GetAllSexes()
+
+        private bool RoomExists(int roomId)
         {
-            return _dal.Sexes.GetAll().ToList().ConvertAll(Converter.ToSexDTO);
-        }
-        public IEnumerable<CountryDTO> GetAllCountries()
-        {
-            return _dal.Countries.GetAll().OrderBy(c => c.Name).ToList().ConvertAll(Converter.ToCountryDTO);
+            return _dal.Rooms.GetAll().FirstOrDefault(r => r.Id == roomId) != null;
         }
 
-        public class RoomInfo
+        private bool UserExists(int userId)
         {
-            public int RoomId { get; set; }
-            public string RoomName { get; set; }
-            public Image RoomAvatar { get; set; }
-            public MessageInfo LastMessage { get; set; }
-            public int AmountOfUnreadedMsgs { get; set; }
+            return _dal.Users.GetAll().FirstOrDefault(u => u.Id == userId) != null;
         }
 
-        public class MessageInfo
+        private int GetAmountOfUnreadedMessages(int roomId)
         {
-            public string Message { get; set; }
-            public DateTime TimeOfLastMessage { get; set; }
-            public string Sender { get; set; }
-        }
-
-        private bool RoomExists(int RoomId)
-        {
-            return _dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Count() != 0;
-        }
-
-        private bool UserExists(int UserId)
-        {
-            return _dal.Users.GetAll().SkipWhile(u => u.Id != UserId).Count() != 0;
-        }
-
-        public IEnumerable<RoomInfo> GetInfosAboutAllUserRooms()
-        {
-            return _dal.Users.GetAll().First(u => u.Id == AuthenticatedUser.Id).
-                Rooms.Select(r => new RoomInfo
-                {
-                    RoomId = r.Id,
-                    AmountOfUnreadedMsgs = GetAmountOfUnreadedMessages(r.Id),
-                    RoomAvatar = Util.ByteArrayToImage(r.Photo),
-                    RoomName = r.Name,
-                    LastMessage = GetInfoAboutMessage(GetLastMessage(r.Id))
-                });
-        }
-
-        private int GetAmountOfUnreadedMessages(int RoomId)
-        {
-            if (RoomExists(RoomId))
+            if (!RoomExists(roomId))
             {
                 throw new Exception("Room cannot be found!");
             }
-            var lastDateOfVisisit = _dal.VisitInfos.GetAll().First(inf => inf.RoomId == RoomId && inf.UserId == AuthenticatedUser.Id).LastDateOfVisit;
-            return _dal.Messages.GetAll().Where(m => m.RoomId == RoomId && m.DateOfSend > lastDateOfVisisit).Count();
+
+            var lastDateOfVisisit = _dal.VisitInfos.GetAll().First(inf => inf.RoomId == roomId && inf.UserId == AuthenticatedUser.Id).LastDateOfVisit;
+            return _dal.Messages.GetAll().Where(m => m.RoomId == roomId && m.DateOfSend > lastDateOfVisisit).Count();
         }
 
         private MessageInfo GetInfoAboutMessage(Message msg)
         {
+            if (msg == null)
+            {
+                return new MessageInfo
+                {
+                    Text = "Bds faeigh kd kdhkd hdahg dgha ghraeighearig raighr h!iweufh.",
+                    SenderName = "Franko",
+                    DateOfSend = DateTime.Now
+                };
+            }
             return new MessageInfo
             {
-                Message = msg.Text,
-                Sender = msg.User.Surname + ' ' + msg.User.Name,
-                TimeOfLastMessage = msg.DateOfSend
+                Text = msg.Text,
+                SenderName = msg.User.Name,
+                DateOfSend = msg.DateOfSend
             };
         }
 
-        private Message GetLastMessage(int RoomId)
+        private Message GetLastMessage(int roomId)
         {
-            if (RoomExists(RoomId))
+            if (!RoomExists(roomId))
             {
                 throw new Exception("Room cannot be found!");
             }
-            return _dal.Messages.GetAll().OrderBy(m => m.DateOfSend).LastOrDefault(m => m.RoomId == RoomId);
+            return _dal.Messages.GetAll().Where(m => m.RoomId == roomId).OrderByDescending(m => m.DateOfSend).FirstOrDefault();
         }
-
+        #endregion
     }
 
-    #region Data-Transfer-Object class or old name POCO = wrapper classe
-    public class CountryDTO
+    public class MessageInf
     {
         public int Id { get; set; }
-
-        public string Name { get; set; }
-
-        // collection of users
-        public IEnumerable<UserDTO> Users { get; set; }
+        public string Text { get; set; }
+        public DateTime Date { get; set; }
+        public Sender Sender { get; set; }
     }
 
-    public class SexDTO
+    public class Sender
     {
-        public int Id { get; set; }
-
-        public string Name { get; set; }
-
-        // collection of users
-        public IEnumerable<UserDTO> Users { get; set; }
-    }
-
-    public class GenreDTO
-    {
-        public int Id { get; set; }
-
-        public string Name { get; set; }
-
-        // collection of rooms
-        public IEnumerable<RoomDTO> Rooms { get; set; }
-    }
-
-    public class UserStatusDTO
-    {
-        public int Id { get; set; }
-
-        public string Name { get; set; }
-
-        // collection of users
-        public IEnumerable<UserDTO> Users { get; set; }
-    }
-
-    public class UserDTO
-    {
-        public int Id { get; set; }
-        public string Login { get; set; }
-        public string Password { get; set; }
-        public string Name { get; set; }
-        public string Surname { get; set; }
-        public DateTime? DateOfBirth { get; set; }
-
-        public SexDTO Sex { get; set; }
-        public int SexId { get; set; }
-        //public string SexName { get; set; }
-
-        public int? CountryId { get; set; }
-        //public string CountryName { get; set; }
-        public CountryDTO Country { get; set; }
-
+        public int SenderId { get; set; }
+        public string FullName { get; set; }
         public Image Photo { get; set; }
 
-        public int StatusId { get; set; }
-        //public string StatusName { get; set; }
-        public UserStatusDTO Status { get; set; }
-
-        // collection of sended messages
-        public IEnumerable<MessageDTO> Messages { get; set; }
-        // collection of invited rooms
-        public IEnumerable<RoomDTO> Rooms { get; set; }
-        // collection of created rooms
-        public IEnumerable<RoomDTO> CreatedRooms { get; set; }
-        // collection of user visit infos
-        public IEnumerable<VisitInfoDTO> VisitInfos { get; set; }
     }
 
-    public class RoomDTO
+    public class MessageInfo
     {
-        public int Id { get; set; }
-
-        public int CreatorId { get; set; }
-        public UserDTO Creator { get; set; }
-
-        public string Name { get; set; }
-
-        public int GenreId { get; set; }
-        //public string GenreName { get; set; }
-        public GenreDTO Genre { get; set; }
-
-        public string Description { get; set; }
-        public Image Photo { get; set; }
-        public bool IsPrivate { get; set; }
-        public bool IsPersonal { get; set; }
-
-        // collection of sended messages
-        public IEnumerable<MessageDTO> Messages { get; set; }
-        // collection of invited users
-        public IEnumerable<UserDTO> Users { get; set; }
-        // collection of room visit infos
-        public IEnumerable<VisitInfoDTO> VisitInfos { get; set; }
-    }
-
-    public class VisitInfoDTO
-    {
-        public int Id { get; set; }
-
-        public int UserId { get; set; }
-        public UserDTO User { get; set; }
-
-        public int RoomId { get; set; }
-        public RoomDTO Room { get; set; }
-
-        public DateTime DateOfLastVisit { get; set; }
-    }
-
-    public class MessageDTO
-    {
-        public int Id { get; set; }
-
-        public int UserId { get; set; }
-        public UserDTO User { get; set; }
-
-        public int RoomId { get; set; }
-        public RoomDTO Room { get; set; }
-
         public string Text { get; set; }
         public DateTime DateOfSend { get; set; }
+        public string SenderName { get; set; }
     }
-    #endregion
 }

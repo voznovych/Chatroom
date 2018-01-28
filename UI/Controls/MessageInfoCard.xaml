@@ -1,0 +1,43 @@
+﻿<UserControl x:Class="UI.MessageInfoCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:UI"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d"
+             Padding="4">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="45"/>
+        </Grid.ColumnDefinitions>
+
+        <Ellipse Grid.Column="0" Margin="2,4,8,4" Height="25" Width="25" VerticalAlignment="Top">
+            <Ellipse.Fill>
+                <ImageBrush ImageSource="{Binding Path=SenderPhoto}"></ImageBrush>
+            </Ellipse.Fill>
+        </Ellipse>
+
+        <materialDesign:Card Grid.Column="1" Background="{DynamicResource PrimaryHueLightBrush}"
+                  materialDesign:ShadowAssist.ShadowDepth="Depth3"
+                  Padding="8,8,8,5" UniformCornerRadius="6"
+                  HorizontalAlignment="Left">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" TextWrapping="Wrap" FontSize="13" Foreground="{DynamicResource PrimaryHueLightForegroundBrush}"
+                       Text="{Binding Path=Text, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+
+                <TextBlock Grid.Row="1" Text="{Binding Path=DateOfSend, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                    Foreground="{DynamicResource PrimaryHueLightForegroundBrush}" FontSize="9" FontWeight="Light"
+                    VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.7"></TextBlock>
+            </Grid>
+        </materialDesign:Card>
+
+    </Grid>
+</UserControl>

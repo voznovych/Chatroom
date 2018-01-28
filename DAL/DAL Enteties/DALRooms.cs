@@ -28,6 +28,7 @@ namespace DAL.DAL_Enteties
         public void Update(Room room)
         {
             var temp = _ctx.Rooms.FirstOrDefault(r => r.Id == room.Id);
+
             temp.CreatorId = room.CreatorId;
             temp.Description = room.Description;
             temp.GenreId = room.GenreId;
@@ -35,7 +36,7 @@ namespace DAL.DAL_Enteties
             temp.IsPrivate = room.IsPrivate;
             temp.Name = room.Name;
             temp.Photo = room.Photo;
-            // _ctx.Entry(temp).State = System.Data.Entity.EntityState.Modified;
+
             _ctx.SaveChanges();
         }
     }
