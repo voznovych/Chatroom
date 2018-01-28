@@ -119,6 +119,71 @@ namespace BLL
             {
             }
         }
+        private IEnumerable<RoomInfo> ConvertRoomToRoomInfo(IQueryable<Room> rooms)
+        {
+            return rooms.Select(r => new RoomInfo()
+            {
+                RoomId = r.Id,
+                AmountOfUnreadedMsgs = GetAmountOfUnreadedMessages(r.Id),
+                RoomAvatar = Util.ByteArrayToImage(r.Photo),
+                RoomName = r.Name,
+                LastMessage = GetInfoAboutMessage(GetLastMessage(r.Id))
+            });
+        }
+        public IEnumerable<RoomInfo> FindUserRooms(string name, int genreId)
+        {
+            if (genreId == -1)
+            {
+                var rooms = _dal.Users.GetAll()
+                .Where(u => u.Id == AuthenticatedUser.Id)
+                .SelectMany(u => u.Rooms)
+                .Where(r => r.Name.Contains(name));
+
+                return ConvertRoomToRoomInfo(rooms);
+            }
+
+            if (IsGenreExist(genreId))
+            {
+                var genreRooms = _dal.Users.GetAll()
+                    .Where(u => u.Id == AuthenticatedUser.Id)
+                    .SelectMany(u => u.Rooms)
+                    .Where(r => r.GenreId == genreId)
+                    .Where(r => r.Name.Contains(name));
+
+                return ConvertRoomToRoomInfo(genreRooms);
+            }
+       
+            return null; 
+        }
+        public IEnumerable<RoomInfo> FindRooms(string name, int genreId)
+        {
+            if (genreId == -1)
+            {
+                var rooms = _dal.Rooms.GetAll()
+                .Where(r => r.Name.Contains(name));
+
+                return ConvertRoomToRoomInfo(rooms);
+            }
+            
+            if (IsGenreExist(genreId))
+            {
+                var genreRooms = _dal.Rooms.GetAll()
+                    .Where(r => r.GenreId == genreId)
+                    .Where(r => r.Name.Contains(name));
+
+                return ConvertRoomToRoomInfo(genreRooms);
+            }
+
+            return null;
+        }
+        private void AddUser(User user)
+        {
+            _dal.Users.AddUser(user);
+        }
+        private void UpdateUser()
+        {
+            _dal.Users.UpdateUser(AuthenticatedUser);
+        }
 
         #region Public methods
         public RegistrationResult SignUp(SignUpUserData data)
@@ -337,7 +402,7 @@ namespace BLL
 
         public IEnumerable<MessageInf> GetMessagesOfRoom(int RoomId)
         {
-            if (_dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Count() == 0)
+            if (_dal.Rooms.GetAll().FirstOrDefault(r => r.Id == RoomId) == null)
             {
                 throw new Exception("Room couldn't be founded!");
             }
@@ -345,7 +410,7 @@ namespace BLL
         }
         public IEnumerable<MessageInf> GetNPackOfMessages(int RoomId, int NumberofPack, int AmountOfMsgsInPack)
         {
-            if (_dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Count() == 0)
+            if (_dal.Rooms.GetAll().FirstOrDefault(r => r.Id == RoomId) == null)
             {
                 throw new Exception("Room couldn't be founded!");
             }
@@ -363,7 +428,7 @@ namespace BLL
         }
         public IEnumerable<MessageInf> GetNewMessages(int RoomId)
         {
-            if (_dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Count() == 0)
+            if (_dal.Rooms.GetAll().FirstOrDefault(r => r.Id == RoomId) == null)
             {
                 throw new Exception("Room couldn't be founded!");
             }
@@ -432,7 +497,10 @@ namespace BLL
 
             return IsSexExist(sex.Id);
         }
-
+        private bool IsGenreExist(int id)
+        {
+            return _dal.Genres.GetAll().FirstOrDefault(g => g.Id == id) != null;
+        }
         private bool IsSexExist(int id)
         {
             return _dal.Sexes.GetAll().FirstOrDefault(s => s.Id == id) != null;
