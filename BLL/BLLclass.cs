@@ -78,7 +78,7 @@ namespace BLL
 
         public IEnumerable<MessageInf> GetMessagesOfRoom(int RoomId)
         {
-            if(_dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Count() == 0)
+            if (_dal.Rooms.GetAll().SkipWhile(r => r.Id != RoomId).Count() == 0)
             {
                 throw new Exception("Room couldn't be founded!");
             }
@@ -114,7 +114,7 @@ namespace BLL
             var lastVisit = _dal.VisitInfos.GetAll().FirstOrDefault(vi => vi.RoomId == RoomId && vi.UserId == AuthenticatedUser.Id).LastDateOfVisit;
             return ConvertMessagesToMessageInfs(msgs.SkipWhile(m => m.DateOfSend < lastVisit));
         }
-      
+
         static BLLClass()
         {
             // Init AutoMapper
@@ -223,29 +223,60 @@ namespace BLL
         private IEnumerable<RoomInfo> ConvertRoomToRoomInfo(IQueryable<Room> rooms)
         {
             return rooms.Select(r => new RoomInfo()
-             {
-                 RoomId = r.Id,
-                 AmountOfUnreadedMsgs = GetAmountOfUnreadedMessages(r.Id),
-                 RoomAvatar = Util.ByteArrayToImage(r.Photo),
-                 RoomName = r.Name,
-                 LastMessage = GetInfoAboutMessage(GetLastMessage(r.Id))
-             });
+            {
+                RoomId = r.Id,
+                AmountOfUnreadedMsgs = GetAmountOfUnreadedMessages(r.Id),
+                RoomAvatar = Util.ByteArrayToImage(r.Photo),
+                RoomName = r.Name,
+                LastMessage = GetInfoAboutMessage(GetLastMessage(r.Id))
+            });
         }
-        public IEnumerable<RoomInfo> FindUserRooms(string name)
+        public IEnumerable<RoomInfo> FindUserRooms(string name, int genreId)
         {
-            var rooms = _dal.Users.GetAll()
-                            .Where(u => u.Id == AuthenticatedUser.Id)
-                            .SelectMany(u => u.Rooms)
-                            .Where(r => r.Name.Contains(name));
 
-            return ConvertRoomToRoomInfo(rooms);
+            if (genreId == -1)
+            {
+                var rooms = _dal.Users.GetAll()
+                .Where(u => u.Id == AuthenticatedUser.Id)
+                .SelectMany(u => u.Rooms)
+                .Where(r => r.Name.Contains(name));
+
+                return ConvertRoomToRoomInfo(rooms);
+            }
+
+            if (IsGenreExist(genreId))
+            {
+                var genreRooms = _dal.Users.GetAll()
+                    .Where(u => u.Id == AuthenticatedUser.Id)
+                    .SelectMany(u => u.Rooms)
+                    .Where(r => r.GenreId == genreId)
+                    .Where(r => r.Name.Contains(name));
+
+                return ConvertRoomToRoomInfo(genreRooms);
+            }
+       
+            return null; 
         }
-        public IEnumerable<RoomInfo> FindRooms(string name)
+        public IEnumerable<RoomInfo> FindRooms(string name, int genreId)
         {
-            var rooms = _dal.Rooms.GetAll()
-                            .Where(r => r.Name.Contains(name));
+            if (genreId == -1)
+            {
+                var rooms = _dal.Rooms.GetAll()
+                .Where(r => r.Name.Contains(name));
 
-            return ConvertRoomToRoomInfo(rooms);
+                return ConvertRoomToRoomInfo(rooms);
+            }
+            
+            if (IsGenreExist(genreId))
+            {
+                var genreRooms = _dal.Rooms.GetAll()
+                    .Where(r => r.GenreId == genreId)
+                    .Where(r => r.Name.Contains(name));
+
+                return ConvertRoomToRoomInfo(genreRooms);
+            }
+
+            return null;
         }
         private void AddUser(User user)
         {
@@ -255,7 +286,7 @@ namespace BLL
         {
             _dal.Users.UpdateUser(AuthenticatedUser);
         }
-        
+
         private User GetUserByLogin(string login)
         {
             return _dal.Users.GetAll().First(u => u.Login == login);
@@ -369,7 +400,10 @@ namespace BLL
 
             return IsSexExist(sex.Id);
         }
-
+        private bool IsGenreExist(int id)
+        {
+            return _dal.Genres.GetAll().FirstOrDefault(g => g.Id == id) != null;
+        }
         private bool IsSexExist(int id)
         {
             return _dal.Sexes.GetAll().FirstOrDefault(s => s.Id == id) != null;
@@ -469,7 +503,8 @@ namespace BLL
 
         private MessageInfo GetInfoAboutMessage(Message msg)
         {
-            return new MessageInfo {
+            return new MessageInfo
+            {
                 Message = msg.Text,
                 Sender = msg.User.Surname + ' ' + msg.User.Name,
                 TimeOfLastMessage = msg.DateOfSend
