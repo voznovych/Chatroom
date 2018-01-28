@@ -68,8 +68,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Controls\CreateRoomDialog.xaml.cs">
-      <DependentUpon>CreateRoomDialog.xaml</DependentUpon>
+    <Compile Include="Controls\UserInfoDialog.xaml.cs">
+      <DependentUpon>UserInfoDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\RoomInfoDialog.xaml.cs">
+      <DependentUpon>RoomInfoDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\NewMessageString.xaml.cs">
+      <DependentUpon>NewMessageString.xaml</DependentUpon>
     </Compile>
     <Compile Include="Domain\AnotherCommandImplementation.cs" />
     <Compile Include="Domain\NotifyPropertyChangedExtension.cs" />
@@ -86,11 +92,22 @@
     <Compile Include="Controls\RoomInfoBox.xaml.cs">
       <DependentUpon>RoomInfoBox.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModels\MessageViewModel.cs" />
+    <Compile Include="ViewModels\RoomInfoViewModel.cs" />
+    <Compile Include="ViewModels\RoomsViewModel.cs" />
     <Page Include="Authorization.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\CreateRoomDialog.xaml">
+    <Page Include="Controls\UserInfoDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\RoomInfoDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\NewMessageString.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

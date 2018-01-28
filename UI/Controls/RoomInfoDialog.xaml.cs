@@ -1,15 +1,19 @@
 ﻿using BLL;
+using BLL.DTO_Enteties;
+using MaterialDesignThemes.Wpf;
 using Microsoft.Win32;
+using System;
 using System.IO;
 using System.Windows.Controls;
 using System.Windows.Media;
+using UI.Domain;
 
 namespace UI.Controls
 {
     /// <summary>
     /// Interaction logic for CreateRoomDialog.xaml
     /// </summary>
-    public partial class CreateRoomDialog : UserControl
+    public partial class RoomInfoDialog : UserControl
     {
         private readonly BLLClass _bll;
 
@@ -28,13 +32,41 @@ namespace UI.Controls
             }
         }
 
-        public CreateRoomDialog(BLLClass bll)
+        public RoomInfoDialog(BLLClass bll)
         {
             InitializeComponent();
+            TextBlockTitle.Text = "CREATE ROOM";
             _bll = bll;
+
             Photo = Util.ByteArrayToImage(File.ReadAllBytes("Resources/if_photo_icon.jpg"));
             GenreComboBox.ItemsSource = _bll.GetAllGenres();
             GenreComboBox.DisplayMemberPath = "Name";
+        }
+        public RoomInfoDialog(BLLClass bll, RoomInfo room)
+        {
+            InitializeComponent();
+            TextBlockTitle.Text = "ROOM";
+            _bll = bll;
+
+            GenreComboBox.ItemsSource = _bll.GetAllGenres();
+            GenreComboBox.DisplayMemberPath = "Name";
+
+            Photo = room.Photo ?? Util.ByteArrayToImage(File.ReadAllBytes("Resources/if_photo_icon.jpg"));
+            NameTextBox.Text = room.Name;
+            //DescriptionTextBox.Text = room.Descrip
+            //GenreComboBox.SelectedIndex = GetIndexOfGenre(room.Genre);
+        }
+
+        private int GetIndexOfGenre(GenreDTO genre)
+        {
+            for (int i = 0; i < GenreComboBox.Items.Count; i++)
+            {
+                if ((GenreComboBox.Items[i] as GenreDTO).Name == genre.Name)
+                {
+                    return i;
+                }
+            }
+            return -1;
         }
 
         private System.Drawing.Image LoadImage()
@@ -74,6 +106,12 @@ namespace UI.Controls
             }
         }
 
+        private bool IsSetedRequiredFields()
+        {
+            return !String.IsNullOrEmpty(NameTextBox.Text)
+                && GenreComboBox.SelectedIndex != -1;
+        }
+
         private CreateRoomData GetCreateRoomData()
         {
             return new CreateRoomData()
@@ -86,10 +124,37 @@ namespace UI.Controls
                 Genre = GenreComboBox.SelectedItem as GenreDTO
             };
         }
+        private void CreateRoom()
+        {
+            if (!IsSetedRequiredFields())
+            {
+                throw new Exception("Some of required fields are not setted!");
+            }
+
+            _bll.CreateRoom(GetCreateRoomData());            
+        }
 
         private void AcceptButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            _bll.CreateRoom(GetCreateRoomData());
+            try
+            {
+                CreateRoom();
+                DialogHost.CloseDialogCommand.Execute(null, null);
+            }
+            catch (Exception ex)
+            {
+                ShowSampleMessageDialog(ex.Message);
+            }
+        }
+
+        private void ShowSampleMessageDialog(string content)
+        {
+            var sampleMessageDialog = new SampleMessageDialog
+            {
+                Message = { Text = content }
+            };
+
+            DialogHost.Show(sampleMessageDialog, "RootDialog");
         }
     }
 }

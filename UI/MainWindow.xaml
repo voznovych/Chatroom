@@ -7,7 +7,9 @@
         mc:Ignorable="d"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         
-        Title="{Binding Path=Login, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Height="500.5" Width="654"
+        Title="{Binding Path=Login, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+        Height="300" Width="700"
+        MinHeight="200" MinWidth="400"
 
         Name="mainWindow"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
@@ -16,7 +18,7 @@
         TextOptions.TextFormattingMode="Ideal"
         TextOptions.TextRenderingMode="Auto"
         Background="{DynamicResource MaterialDesignPaper}"
-        FontFamily="{DynamicResource MaterialDesignFont}">
+        FontFamily="{DynamicResource MaterialDesignFont}" Closed="MainWindow_Closed">
 
     <Window.Resources>
         <ResourceDictionary>
@@ -33,7 +35,7 @@
         </ResourceDictionary>
     </Window.Resources>
 
-    <materialDesign:DialogHost Identifier="CreateRoomDialog">
+    <materialDesign:DialogHost Identifier="MainWindow">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" MaxWidth="500" MinWidth="70"/>
@@ -48,27 +50,56 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <materialDesign:ColorZone Height="40" Mode="PrimaryMid"  Padding="4"/>
-
-                <materialDesign:ColorZone Grid.Row="1" Mode="Dark" Padding="8 0 8 0" CornerRadius="2" Panel.ZIndex="1"
-                                   Margin="4"
-                                   materialDesign:ShadowAssist.ShadowDepth="Depth2">
+                <materialDesign:ColorZone Height="40" Mode="PrimaryMid" Padding="4"
+                                          materialDesign:ShadowAssist.ShadowDepth="Depth2"
+                                          materialDesign:ShadowAssist.ShadowEdges="Bottom">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <Button Style="{DynamicResource MaterialDesignToolButton}">
-                            <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
-                        </Button>
-                        <TextBox Grid.Column="1" Margin="8 0 0 0" materialDesign:HintAssist.Hint="Search room" 
+
+                        <materialDesign:ColorZone Mode="Dark" Padding="4 0 4 0" CornerRadius="8"
+                                   Margin="0 1 0 1"
+                                   materialDesign:ShadowAssist.ShadowDepth="Depth2">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Button VerticalAlignment="Center"
+                                        Style="{DynamicResource MaterialDesignToolButton}"
+                                        materialDesign:RippleAssist.IsDisabled="True">
+                                    <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
+                                </Button>
+
+                                <TextBox Name="SearchTectBlock" Grid.Column="1" Margin="4 0 4 0" materialDesign:HintAssist.Hint="Search a room" 
                                      materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"
-                                     MinWidth="200" VerticalAlignment="Center" />
+                                     VerticalAlignment="Center" TextChanged="TextBox_TextChanged"/>
+
+                                <Button Name="globalSearchButton" Grid.Column="2" VerticalAlignment="Center"
+                                        Style="{DynamicResource MaterialDesignToolButton}"
+                                        Foreground="{DynamicResource PrimaryHueDarkBrush}"
+                                        materialDesign:RippleAssist.IsDisabled="True" Click="GlobalSearchButton_Click"
+                                        ToolTip="Global Search">
+                                    <materialDesign:PackIcon Kind="Earth" Opacity=".56" />
+                                </Button>
+                            </Grid>
+                        </materialDesign:ColorZone>
+
+                        <Button Margin="2,0,0,0" VerticalAlignment="Center" Grid.Column="1" HorizontalAlignment="Right"
+                                Style="{DynamicResource MaterialDesignToolForegroundButton}" Click="UserDetails_Button_Click">
+                            <materialDesign:PackIcon Kind="AccountCardDetails" />
+                        </Button>
                     </Grid>
                 </materialDesign:ColorZone>
 
-                <ListBox ItemsSource="{Binding Rooms}" HorizontalContentAlignment="Stretch" Grid.Row="2" ScrollViewer.VerticalScrollBarVisibility="Hidden" Name="roomsListBox"/>
+                <ScrollViewer Grid.Row="2" Name="roomsList" VerticalScrollBarVisibility="Hidden"
+                              Padding="0 4">
+                    <ItemsControl ItemsSource="{Binding ViewData}"></ItemsControl>
+                </ScrollViewer>
 
                 <Button Grid.Row="2" Margin="7" Height="30" Width="30" VerticalAlignment="Bottom" HorizontalAlignment="Right" Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}"
                         ToolTip="Create Room" materialDesign:ShadowAssist.ShadowDepth="Depth5" Click="CreateRoomButton_Click">
@@ -76,26 +107,32 @@
                 </Button>
             </Grid>
 
-            <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Center" Width="2" ResizeBehavior="PreviousAndNext" ShowsPreview="True"/>
+            <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Center" Width="2" ResizeBehavior="PreviousAndNext"/>
 
             <DockPanel Grid.Column="2">
-                <materialDesign:ColorZone DockPanel.Dock="Top" Height="40" Mode="PrimaryLight"  Padding="4">
-                    <DockPanel>
+                <materialDesign:ColorZone DockPanel.Dock="Top" Height="40" Mode="PrimaryMid" Padding="4"
+                                          materialDesign:ShadowAssist.ShadowDepth="Depth2"
+                                          materialDesign:ShadowAssist.ShadowEdges="Bottom">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-
-                        <Ellipse Height="30" Width="30" DockPanel.Dock="Left">
+                        <Ellipse Height="30" Width="30">
                             <Ellipse.Fill>
                                 <ImageBrush ImageSource="{Binding Path=Photo, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Stretch="Fill"/>
                             </Ellipse.Fill>
                         </Ellipse>
-                        <TextBlock DockPanel.Dock="Left" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="16 0 0 0">Vlad Tymoshchuk</TextBlock>
 
-                        <Button HorizontalAlignment="Right" DockPanel.Dock="Right" Style="{DynamicResource MaterialDesignToolForegroundButton}" Margin="8 0 0 0" Panel.ZIndex="0">
-                            <materialDesign:PackIcon Kind="Settings" />
-                        </Button>
+                        <TextBlock Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="8,0,0,0">Vlad Tymoshchuk</TextBlock>
 
-                        <materialDesign:ColorZone DockPanel.Dock="Right" HorizontalAlignment="Right" Mode="PrimaryLight"  Padding="8 0 8 0" CornerRadius="2" Panel.ZIndex="1"
-                                   Margin="2 0 0 2"
+
+                        <materialDesign:ColorZone HorizontalAlignment="Right" Grid.Column="2" Mode="PrimaryLight" Padding="4 0 4 0" CornerRadius="8"
+                                   Margin="8,2,8,2"
                                    materialDesign:ShadowAssist.ShadowDepth="Depth1">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -103,28 +140,37 @@
                                     <ColumnDefinition Width="*" />
 
                                 </Grid.ColumnDefinitions>
-                                <Button Style="{DynamicResource MaterialDesignToolButton}">
+                                <Button VerticalAlignment="Center" Style="{DynamicResource MaterialDesignToolButton}">
                                     <materialDesign:PackIcon Kind="Magnify" Opacity=".56" />
                                 </Button>
-                                <TextBox Grid.Column="1" Margin="8 0 0 0" materialDesign:HintAssist.Hint="Search a messages" 
+                                <TextBox Grid.Column="1" materialDesign:HintAssist.Hint="Search a messages" 
                                      materialDesign:TextFieldAssist.DecorationVisibility="Hidden" BorderThickness="0"
-                                     MinWidth="20" VerticalAlignment="Center" />
-
+                                     MinWidth="150" VerticalAlignment="Center"/>
                             </Grid>
                         </materialDesign:ColorZone>
 
-                    </DockPanel>
+                        <Button Grid.Column="3" Style="{DynamicResource MaterialDesignToolForegroundButton}"
+                                materialDesign:RippleAssist.IsDisabled="True" Click="Button_Click_1">
+                            <materialDesign:PackIcon Kind="RenameBox" />
+                        </Button>
+                        <Button Grid.Column="4" Style="{DynamicResource MaterialDesignToolForegroundButton}"
+                                materialDesign:RippleAssist.IsDisabled="True" Click="Button_Click">
+                            <materialDesign:PackIcon Kind="Settings" />
+                        </Button>
+                    </Grid>
                 </materialDesign:ColorZone>
 
-                <materialDesign:ColorZone DockPanel.Dock="Bottom" Mode="PrimaryDark" CornerRadius="8"
+                <materialDesign:ColorZone DockPanel.Dock="Bottom" Mode="PrimaryDark" CornerRadius="15"
                                     materialDesign:ShadowAssist.ShadowDepth="Depth2" Margin="6">
                     <DockPanel>
 
-                        <Button Style="{DynamicResource MaterialDesignFlatButton}" DockPanel.Dock="Right" Width="50"
-                            IsDefault="True" VerticalAlignment="Bottom">
+                        <Button Foreground="{DynamicResource SecondaryAccentBrush}"
+                                Style="{DynamicResource MaterialDesignFlatButton}" DockPanel.Dock="Right" Width="50"
+                                IsDefault="True" VerticalAlignment="Bottom" materialDesign:RippleAssist.IsDisabled="True">
                             <materialDesign:PackIcon Kind="Send" VerticalAlignment="Bottom" />
                         </Button>
-                        <TextBox x:Name="MessageTextBox" Margin="8 0 0 3" MaxHeight="130"
+                        <TextBox Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}"
+                                 x:Name="MessageTextBox" Margin="12 0 0 3" MaxHeight="130"
                             materialDesign:HintAssist.Hint="Write a Message"
                             AcceptsReturn="True"
                             VerticalScrollBarVisibility="Hidden"
@@ -132,12 +178,10 @@
                     </DockPanel>
                 </materialDesign:ColorZone>
 
-                <ListBox ItemsSource="{Binding Messages}"
-                     HorizontalContentAlignment="Stretch"
-                     ScrollViewer.VerticalScrollBarVisibility="Hidden"
-                     Name="messageListBox" materialDesign:RippleAssist.IsDisabled="True">
-                </ListBox>
-
+                <ScrollViewer Padding="4">
+                    <ItemsControl Name="messagesList" ItemsSource="{Binding Messages}"></ItemsControl>
+                </ScrollViewer>
+                
             </DockPanel>
         </Grid>
     </materialDesign:DialogHost>

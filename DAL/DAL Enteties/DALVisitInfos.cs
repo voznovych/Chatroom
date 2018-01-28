@@ -29,8 +29,9 @@ namespace DAL.DAL_Enteties
         public void Update(int id, DateTime date)
         {
             VisitInfo temp = _ctx.VisitInfos.FirstOrDefault(v => v.Id == id);
+
             temp.LastDateOfVisit = date;
-            //_ctx.Entry(temp).State = System.Data.Entity.EntityState.Modified;
+
             _ctx.SaveChanges();
         }
     }

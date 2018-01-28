@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BLL.DTO_Enteties;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
