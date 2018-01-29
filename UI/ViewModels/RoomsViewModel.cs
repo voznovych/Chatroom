@@ -23,13 +23,15 @@ namespace UI.ViewModels
         //    get { return _roomInfoBoxes; }
         //}
 
-
         public RoomsViewModel(IEnumerable<RoomInfo> rooms, RoomIBoxClick click)
         {
             _roomInfoViewModels = new List<RoomInfoViewModel>();
-            foreach (var room in rooms)
+            if (rooms != null)
             {
-                _roomInfoViewModels.Add(new RoomInfoViewModel(room));
+                foreach (var room in rooms)
+                {
+                    _roomInfoViewModels.Add(new RoomInfoViewModel(room));
+                }
             }
 
             _roomInfoBoxes = new List<RoomInfoBox>();
