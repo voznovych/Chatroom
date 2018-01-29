@@ -7,6 +7,7 @@
         mc:Ignorable="d"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         
+        
         Title="{Binding Path=Login, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
         Height="300" Width="700"
         MinHeight="200" MinWidth="400"
@@ -40,14 +41,35 @@
                 <Grid.RowDefinitions>
                     <RowDefinition/>
                     <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
                 </Grid.RowDefinitions>
-                <Button Grid.Row="0" Margin="2,0,0,0" VerticalAlignment="Center" Grid.Column="1" HorizontalAlignment="Right"
-                                Style="{DynamicResource MaterialDesignToolForegroundButton}" Click="UserDetails_Button_Click">
+                <Button Grid.Row="0" VerticalAlignment="Center" Grid.Column="1" HorizontalAlignment="Center"
+                                Style="{DynamicResource MaterialDesignFlatButton}" Click="UserDetails_Button_Click">
                     Edit user
                 </Button>
-                <ToggleButton IsChecked="False">
-                    Dark theme
-                </ToggleButton>
+                <Grid Grid.Row="1" Margin="6">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock>Dark mode</TextBlock>
+                    <ToggleButton HorizontalAlignment="Right" Grid.Column="1" IsChecked="True" Checked="ToggleButton_StatusChanged" Unchecked="ToggleButton_StatusChanged"/>
+                </Grid>
+                <Grid Grid.Row="2" Margin="6,0,6,6">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <TextBlock VerticalAlignment="Center" Grid.Row="0" Grid.Column="0">Primary color:</TextBlock>
+                    <ComboBox x:Name="ThemePrimaryList" DropDownClosed="ThemePrimaryList_DropDownClosed" Grid.Row="0" Grid.Column="1"></ComboBox>
+                    <TextBlock VerticalAlignment="Center" Grid.Row="1" Grid.Column="0">Primary color:</TextBlock>
+                    <ComboBox x:Name="ThemeAccentList" DropDownClosed="ThemeAccentList_DropDownClosed" Grid.Row="1" Grid.Column="1"></ComboBox>
+                </Grid>
             </Grid>
         </materialDesign:DrawerHost.LeftDrawerContent>
         <materialDesign:DialogHost Identifier="MainWindow">
@@ -65,7 +87,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Grid Grid.Column="1">
+                <Grid Grid.Column="0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>

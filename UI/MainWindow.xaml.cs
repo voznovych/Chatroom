@@ -5,6 +5,11 @@ using System.Windows;
 using System.Windows.Media;
 using UI.Controls;
 using UI.ViewModels;
+using System.Windows.Input;
+using System.Collections.Generic;
+using MaterialDesignColors;
+using MahMaterialDragablzMashUp;
+using System.Linq;
 
 namespace UI
 {
@@ -56,10 +61,21 @@ namespace UI
         }
         #endregion
 
+        
         public MainWindow(BLLClass bll)
         {
             InitializeComponent();
             _bll = bll;
+
+            //
+            Swatches = new SwatchesProvider().Swatches.OrderBy(s => s.Name);
+            ThemePrimaryList.ItemsSource = Swatches;
+            ThemeAccentList.ItemsSource = Swatches;
+
+            string currentP = Application.Current.Resources.MergedDictionaries.FirstOrDefault(m => m.Source.OriginalString.Contains(@"/Primary/")).Source.OriginalString;
+            ThemePrimaryList.SelectedItem = Swatches.FirstOrDefault(s => currentP.Contains(s.Name));
+            string currentA = Application.Current.Resources.MergedDictionaries.FirstOrDefault(m => m.Source.OriginalString.Contains(@"/Accent/")).Source.OriginalString;
+            ThemeAccentList.SelectedItem = Swatches.FirstOrDefault(s => currentA.Contains(s.Name));
 
             _roomsViewModel = new RoomsViewModel(_bll.GetInfosAboutAllUserRooms(), Room_Click);
             roomsList.DataContext = _roomsViewModel;
@@ -108,6 +124,39 @@ namespace UI
         private void TextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
             _roomsViewModel.Filter(SearchTectBlock.Text);
+        }
+
+        #region Palette block
+        private static void ApplyBase(bool isDark)
+        {
+            new PaletteHelper.PaletteHelper().SetLightDark(isDark);
+        }
+
+        public IEnumerable<Swatch> Swatches { get; }
+
+        private static void ApplyPrimary(Swatch swatch)
+        {
+            new PaletteHelper.PaletteHelper().ReplacePrimaryColor(swatch);
+        }
+        private static void ApplyAccent(Swatch swatch)
+        {
+            new PaletteHelper.PaletteHelper().ReplaceAccentColor(swatch);
+        }
+        #endregion
+
+        private void ToggleButton_StatusChanged(object sender, RoutedEventArgs e)
+        {
+            ApplyBase((bool)((System.Windows.Controls.Primitives.ToggleButton)sender).IsChecked);
+        }
+
+        private void ThemePrimaryList_DropDownClosed(object sender, EventArgs e)
+        {
+            ApplyPrimary((Swatch)ThemePrimaryList.SelectedItem);
+        }
+
+        private void ThemeAccentList_DropDownClosed(object sender, EventArgs e)
+        {
+            ApplyAccent((Swatch)ThemeAccentList.SelectedItem);
         }
     }
 }
