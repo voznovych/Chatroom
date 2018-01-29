@@ -36,11 +36,18 @@
     </Window.Resources>
     <materialDesign:DrawerHost HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <materialDesign:DrawerHost.LeftDrawerContent>
-            <Grid VerticalAlignment="Top">
-                <Button Margin="2,0,0,0" VerticalAlignment="Center" Grid.Column="1" HorizontalAlignment="Right"
+            <Grid VerticalAlignment="Top" Width="{Binding ElementName=roomsList, Path=ActualWidth, Mode=OneWay}">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Button Grid.Row="0" Margin="2,0,0,0" VerticalAlignment="Center" Grid.Column="1" HorizontalAlignment="Right"
                                 Style="{DynamicResource MaterialDesignToolForegroundButton}" Click="UserDetails_Button_Click">
                     Edit user
                 </Button>
+                <ToggleButton IsChecked="False">
+                    Dark theme
+                </ToggleButton>
             </Grid>
         </materialDesign:DrawerHost.LeftDrawerContent>
         <materialDesign:DialogHost Identifier="MainWindow">
@@ -58,7 +65,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Grid>
+                <Grid Grid.Column="1">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
@@ -111,7 +118,7 @@
                         </Grid>
                     </materialDesign:ColorZone>
 
-                    <ScrollViewer Grid.Row="2" Name="roomsList" VerticalScrollBarVisibility="Hidden"
+                    <ScrollViewer Grid.Row="2" x:Name="roomsList" VerticalScrollBarVisibility="Hidden"
                               Padding="0 4">
                         <ItemsControl ItemsSource="{Binding ViewData}"></ItemsControl>
                     </ScrollViewer>
