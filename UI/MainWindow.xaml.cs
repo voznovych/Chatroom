@@ -27,6 +27,8 @@ namespace UI
         private RoomInfoBox _selectedRoom;
 
         private RoomsViewModel _roomsViewModel;
+        private BLL.DTO_Enteties.UserInfo _user;
+        
         #endregion
 
         #region Public properties
@@ -66,17 +68,20 @@ namespace UI
         {
             InitializeComponent();
             _bll = bll;
-
+            //
+            _user = _bll.GetUserInfo();
+            UserAvatarChangingBox.ImageSource = Util.ImageToImageSource(_user.Photo);
+            UserFullname.Text = _user.Name + " " + _user.Surname;
             //
             Swatches = new SwatchesProvider().Swatches.OrderBy(s => s.Name);
             ThemePrimaryList.ItemsSource = Swatches;
-            ThemeAccentList.ItemsSource = Swatches;
+            ThemeAccentList.ItemsSource = Swatches.Where(s => s.IsAccented);
 
             string currentP = Application.Current.Resources.MergedDictionaries.FirstOrDefault(m => m.Source.OriginalString.Contains(@"/Primary/")).Source.OriginalString;
             ThemePrimaryList.SelectedItem = Swatches.FirstOrDefault(s => currentP.Contains(s.Name));
             string currentA = Application.Current.Resources.MergedDictionaries.FirstOrDefault(m => m.Source.OriginalString.Contains(@"/Accent/")).Source.OriginalString;
             ThemeAccentList.SelectedItem = Swatches.FirstOrDefault(s => currentA.Contains(s.Name));
-
+            //
             _roomsViewModel = new RoomsViewModel(_bll.GetInfosAboutAllUserRooms(), Room_Click);
             roomsList.DataContext = _roomsViewModel;
             //messagesList.DataContext = new MessageViewModel();
@@ -98,6 +103,9 @@ namespace UI
         {
             var dialog = new UserInfoDialog(_bll);
             DialogHost.Show(dialog, "MainWindow");
+            _user = _bll.GetUserInfo();
+            UserAvatarChangingBox.ImageSource = Util.ImageToImageSource(_user.Photo);
+            UserFullname.Text = _user.Name + " " + _user.Surname;
         }
 
         private void GlobalSearchButton_Click(object sender, RoutedEventArgs e)
