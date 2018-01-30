@@ -37,7 +37,7 @@
     </Window.Resources>
     <materialDesign:DrawerHost HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <materialDesign:DrawerHost.LeftDrawerContent>
-            <StackPanel Width="{Binding ElementName=roomsList, Path=ActualWidth, Mode=OneWay}">
+            <StackPanel Width="200">
                 <Button HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Height="Auto" Style="{DynamicResource MaterialDesignFlatButton}" Click="UserDetails_Button_Click">
                     <StackPanel>
                         <Ellipse Width="50" Height="50">
@@ -50,26 +50,41 @@
                 </Button>
                 <Grid Margin="6">
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition/>
-                        <ColumnDefinition/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock>Dark mode</TextBlock>
-                    <ToggleButton HorizontalAlignment="Right" Grid.Column="1" IsChecked="True" Checked="ToggleButton_StatusChanged" Unchecked="ToggleButton_StatusChanged"/>
+                    <materialDesign:PackIcon Kind="WeatherNight"/>
+                    <TextBlock Grid.Column="1" Margin="4,0,0,0">Dark mode</TextBlock>
+                    <ToggleButton HorizontalAlignment="Right" Grid.Column="2" IsChecked="True" Checked="ToggleButton_StatusChanged" Unchecked="ToggleButton_StatusChanged"/>
                 </Grid>
                 <Grid  Margin="6,0,6,6">
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition/>
-                        <ColumnDefinition/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <TextBlock VerticalAlignment="Center" Grid.Row="0" Grid.Column="0">Primary color:</TextBlock>
-                    <ComboBox x:Name="ThemePrimaryList" DropDownClosed="ThemePrimaryList_DropDownClosed" Grid.Row="0" Grid.Column="1"></ComboBox>
-                    <TextBlock VerticalAlignment="Center" Grid.Row="1" Grid.Column="0">Primary color:</TextBlock>
-                    <ComboBox x:Name="ThemeAccentList" DropDownClosed="ThemeAccentList_DropDownClosed" Grid.Row="1" Grid.Column="1"></ComboBox>
+                    <materialDesign:PackIcon VerticalAlignment="Center" Grid.Column="0" Kind="Palette" />
+                    <TextBlock VerticalAlignment="Center" Margin="4,0,0,0" Grid.Row="0" Grid.Column="1">Primary color:</TextBlock>
+                    <ComboBox x:Name="ThemePrimaryList" DropDownClosed="ThemePrimaryList_DropDownClosed" HorizontalContentAlignment="Right" Grid.Row="0" Grid.Column="2"></ComboBox>
+                    <materialDesign:PackIcon VerticalAlignment="Center" Kind="Palette" Grid.Row="1"/>
+                    <TextBlock VerticalAlignment="Center" Margin="4,0,0,0" Grid.Row="1" Grid.Column="1">Accent color:</TextBlock>
+                    <ComboBox x:Name="ThemeAccentList" DropDownClosed="ThemeAccentList_DropDownClosed" HorizontalContentAlignment="Right" Grid.Row="1" Grid.Column="2"></ComboBox>
                 </Grid>
+                <Button x:Name="LogOut" Height="Auto" Style="{DynamicResource MaterialDesignFlatButton}" HorizontalContentAlignment="Stretch" Padding="6" Click="LogOut_Click">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <materialDesign:PackIcon Grid.Column="0" Kind="LogoutVariant" />
+                        <TextBlock Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center">Logout</TextBlock>
+                    </Grid>
+                </Button>
             </StackPanel>
         </materialDesign:DrawerHost.LeftDrawerContent>
         <materialDesign:DialogHost Identifier="MainWindow">
@@ -82,7 +97,7 @@
         -->
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" MaxWidth="500" MinWidth="70"/>
+                    <ColumnDefinition Width="200" MaxWidth="400" MinWidth="200"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>

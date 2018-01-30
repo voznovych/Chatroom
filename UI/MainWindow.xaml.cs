@@ -102,7 +102,11 @@ namespace UI
         private void UserDetails_Button_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new UserInfoDialog(_bll);
-            DialogHost.Show(dialog, "MainWindow");
+            DialogHost.Show(dialog, "MainWindow", new DialogClosingEventHandler(UserDetailUpdate));
+        }
+
+        private void UserDetailUpdate(object sender, RoutedEventArgs e)
+        {
             _user = _bll.GetUserInfo();
             UserAvatarChangingBox.ImageSource = Util.ImageToImageSource(_user.Photo);
             UserFullname.Text = _user.Name + " " + _user.Surname;
@@ -165,6 +169,13 @@ namespace UI
         private void ThemeAccentList_DropDownClosed(object sender, EventArgs e)
         {
             ApplyAccent((Swatch)ThemeAccentList.SelectedItem);
+        }
+
+        private void LogOut_Click(object sender, RoutedEventArgs e)
+        {
+            Authorization newWindow = new Authorization();
+            newWindow.Show();
+            Close();    
         }
     }
 }
