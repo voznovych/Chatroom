@@ -92,6 +92,7 @@
     <Compile Include="Controls\RoomInfoBox.xaml.cs">
       <DependentUpon>RoomInfoBox.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Palets\PaletteHelper.cs" />
     <Compile Include="ViewModels\MessageViewModel.cs" />
     <Compile Include="ViewModels\RoomInfoViewModel.cs" />
     <Compile Include="ViewModels\RoomsViewModel.cs" />
@@ -213,5 +214,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
