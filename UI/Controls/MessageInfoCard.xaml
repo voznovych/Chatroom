@@ -6,38 +6,73 @@
              xmlns:local="clr-namespace:UI"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d"
-             Padding="4">
+             Padding="10 6">
 
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="45"/>
-        </Grid.ColumnDefinitions>
+    <ItemsControl>
+        <Grid Grid.Column="0" Name="gridFromSomebody">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="45"/>
+            </Grid.ColumnDefinitions>
 
-        <Ellipse Grid.Column="0" Margin="2,4,8,4" Height="25" Width="25" VerticalAlignment="Top">
-            <Ellipse.Fill>
-                <ImageBrush ImageSource="{Binding Path=SenderPhoto}"></ImageBrush>
-            </Ellipse.Fill>
-        </Ellipse>
+            <Ellipse Grid.Column="0" Margin="2,4,8,4" Height="25" Width="25" VerticalAlignment="Top">
+                <Ellipse.Fill>
+                    <ImageBrush ImageSource="{Binding Path=Photo}"></ImageBrush>
+                </Ellipse.Fill>
+            </Ellipse>
 
-        <materialDesign:Card Grid.Column="1" Background="{DynamicResource PrimaryHueLightBrush}"
+            <materialDesign:Card Grid.Column="1" Background="{DynamicResource PrimaryHueLightBrush}"
                   materialDesign:ShadowAssist.ShadowDepth="Depth3"
-                  Padding="8,8,8,5" UniformCornerRadius="6"
+                  Padding="8,4,8,4" UniformCornerRadius="6"
                   HorizontalAlignment="Left">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" TextWrapping="Wrap" FontSize="13" Foreground="{DynamicResource PrimaryHueLightForegroundBrush}"
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="{Binding Path=FullName, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                    Foreground="{DynamicResource PrimaryHueLightForegroundBrush}" FontSize="12" FontWeight="Bold"
+                    VerticalAlignment="Center" HorizontalAlignment="Left" Opacity="0.9" TextTrimming="CharacterEllipsis"></TextBlock>
+
+                    <TextBlock Grid.Row="1" TextWrapping="Wrap" FontSize="14" Foreground="{DynamicResource PrimaryHueLightForegroundBrush}"
+                       Text="{Binding Path=Text, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                               FontWeight="Regular"></TextBlock>
+
+                    <TextBlock Grid.Row="2" Text="{Binding Path=DateOfSend, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                    Foreground="{DynamicResource PrimaryHueLightForegroundBrush}" FontSize="10" FontWeight="Light"
+                    VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.85" TextTrimming="CharacterEllipsis"></TextBlock>
+                </Grid>
+            </materialDesign:Card>
+
+        </Grid>
+        <Grid Name="gridFromMe" Grid.Column="1" Visibility="Collapsed">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="55"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <materialDesign:Card Grid.Column="1" Background="{DynamicResource PrimaryHueDarkBrush}"
+                  materialDesign:ShadowAssist.ShadowDepth="Depth3"
+                  Padding="8,4,8,4" UniformCornerRadius="6"
+                  HorizontalAlignment="Right">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" TextWrapping="Wrap" FontSize="14" Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}"
                        Text="{Binding Path=Text, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
 
-                <TextBlock Grid.Row="1" Text="{Binding Path=DateOfSend, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
-                    Foreground="{DynamicResource PrimaryHueLightForegroundBrush}" FontSize="9" FontWeight="Light"
-                    VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.7"></TextBlock>
-            </Grid>
-        </materialDesign:Card>
+                    <TextBlock Grid.Row="1" Text="{Binding Path=DateOfSend, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                    Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" FontSize="10" FontWeight="Light"
+                    VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.85" TextTrimming="CharacterEllipsis"/>
+                </Grid>
+            </materialDesign:Card>
 
-    </Grid>
+        </Grid>
+    </ItemsControl>
 </UserControl>

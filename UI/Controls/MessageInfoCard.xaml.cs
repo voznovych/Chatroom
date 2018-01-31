@@ -12,6 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using BLL;
+using UI.ViewModels;
 
 namespace UI
 {
@@ -20,9 +22,27 @@ namespace UI
     /// </summary>
     public partial class MessageInfoCard : UserControl
     {
-        public MessageInfoCard()
+        private MessageInfViewModel _message;
+
+        public MessageInfViewModel Message => _message;
+
+        public MessageInfoCard(MessageInfViewModel message, bool isFromMe)
         {
             InitializeComponent();
+            _message = message;
+
+            DataContext = _message;
+
+            if (isFromMe)
+            {
+                gridFromSomebody.Visibility = Visibility.Collapsed;
+                gridFromMe.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                gridFromMe.Visibility = Visibility.Collapsed;
+                gridFromSomebody.Visibility = Visibility.Visible;
+            }
         }
     }
 }

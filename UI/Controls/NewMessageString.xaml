@@ -4,20 +4,17 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:UI.Controls"
-             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"             
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
-        <!--<Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
             <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
-        <Line Fill="#FF1965A7" Grid.Column="0" HorizontalAlignment="Stretch" Stroke="#FFB72B2B" StrokeThickness="3"/>
-        <TextBlock Grid.Column="1" HorizontalAlignment="Center" Foreground="{DynamicResource SecondaryAccentBrush}">NEW MESSAGE</TextBlock>
-        <Line Grid.Column="2" HorizontalAlignment="Stretch"/>-->
-        <Line StrokeThickness="5" Stroke="#FF8533E7" VerticalAlignment="Center" Fill="#FFC82727" UseLayoutRounding="False"/>
-
+        <Rectangle Stroke="IndianRed" VerticalAlignment="Center" HorizontalAlignment="Stretch" Grid.Column="0"></Rectangle>
+        <TextBlock TextTrimming="CharacterEllipsis" Margin="5" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="PaleVioletRed" Grid.Column="1">UNREAD MESSAGES</TextBlock>
+        <Rectangle Stroke="IndianRed" VerticalAlignment="Center" HorizontalAlignment="Stretch" Grid.Column="2"></Rectangle>
     </Grid>
 </UserControl>

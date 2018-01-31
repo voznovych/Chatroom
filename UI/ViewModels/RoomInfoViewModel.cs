@@ -12,16 +12,18 @@ namespace UI.ViewModels
 {
     public class RoomInfoViewModel : INotifyPropertyChanged
     {
-        private RoomInfo _room;
+        private RoomInfoForRoomInfoBox _room;
+        private int _userId;
 
-        public RoomInfo Room { get { return _room; } }
+        public RoomInfoForRoomInfoBox Room { get { return _room; } }
 
-        public RoomInfoViewModel(RoomInfo room)
+        public RoomInfoViewModel(RoomInfoForRoomInfoBox room, int userId)
         {
             _room = room;
+            _userId = userId;
         }
 
-        public void Update(RoomInfo room)
+        public void Update(RoomInfoForRoomInfoBox room)
         {
             var oldRoom = _room;
             _room = room;
@@ -58,13 +60,27 @@ namespace UI.ViewModels
         }
         public string Text
         {
-            get { return _room.LastMessage?.Text; }
+            get
+            {
+                if (_room.LastMessage == null)
+                {
+                    return "No messages here yet...";
+                }
+                return _room.LastMessage.Text;
+            }
         }
         public string DateOfSend
         {
-            get { return _room.LastMessage?.DateOfSend.Day == DateTime.Now.Day
+            get
+            {
+                if (_room.LastMessage == null)
+                {
+                    return String.Empty;
+                }
+                return _room.LastMessage.DateOfSend.Day == DateTime.Now.Day
                     ? _room.LastMessage.DateOfSend.ToShortTimeString()
-                    : _room.LastMessage.DateOfSend.ToShortDateString(); }
+                    : _room.LastMessage.DateOfSend.ToShortDateString();
+            }
         }
         public ImageSource Photo
         {
@@ -76,7 +92,14 @@ namespace UI.ViewModels
         }
         public string SenderName
         {
-            get { return _room.LastMessage?.SenderName; }
+            get
+            {
+                if (_room.LastMessage == null)
+                {
+                    return String.Empty;
+                }
+                return $"{(_room.LastMessage.SenderId == _userId ? "You" : _room.LastMessage.SenderName)}: ";
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
