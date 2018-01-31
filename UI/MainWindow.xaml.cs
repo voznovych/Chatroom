@@ -25,7 +25,7 @@ namespace UI
         #region Private properties
         public DispatcherTimer _refreshRoomsTimer;
         public DispatcherTimer _refreshMessagesTimer;
-        public DispatcherTimer _refreshLastVisiDate;
+        public DispatcherTimer _refreshLastVisitDate;
 
         private readonly BLLClass _bll;
         private bool _isGlobalSearch;
@@ -54,8 +54,8 @@ namespace UI
                 SelectedRoomName_TB.DataContext = value.Room;
                 EditRoom_Button.IsEnabled = _bll.IsIRoomCreator(value.Room.Room.Id);
 
-                _refreshLastVisiDate.Stop();
-                _refreshLastVisiDate.Start();
+                _refreshLastVisitDate.Stop();
+                _refreshLastVisitDate.Start();
 
                 messagesScroll.ScrollToBottom();
 
@@ -122,11 +122,11 @@ namespace UI
             _refreshMessagesTimer.Tick += _refreshMessagesTimer_Tick;
             _refreshMessagesTimer.Start();
 
-            _refreshLastVisiDate = new DispatcherTimer()
+            _refreshLastVisitDate = new DispatcherTimer()
             {
                 Interval = new TimeSpan(0, 0, 3)
             };
-            _refreshLastVisiDate.Tick += _refreshLastVisiDate_Tick;
+            _refreshLastVisitDate.Tick += _refreshLastVisiDate_Tick;
 
             IsGlobalSearch = false;
             _roomsViewModel.SelectFirstRoom();
@@ -303,6 +303,9 @@ namespace UI
 
         private void LogOut_Click(object sender, RoutedEventArgs e)
         {
+            _refreshRoomsTimer.Stop();
+            _refreshMessagesTimer.Stop();
+            _refreshLastVisitDate.Stop();
             Authorization newWindow = new Authorization();
             newWindow.Show();
             Close();    
