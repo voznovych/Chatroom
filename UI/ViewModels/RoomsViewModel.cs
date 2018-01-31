@@ -23,6 +23,7 @@ namespace UI.ViewModels
 
         public ICollectionView View => _viewSource.View;
 
+
         public RoomsViewModel(RoomIBoxClick click, int userId)
         {
             _roomInfoViewModels = new List<RoomInfoViewModel>();

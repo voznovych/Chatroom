@@ -7,6 +7,11 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using UI.Controls;
 using UI.ViewModels;
+using System.Windows.Input;
+using System.Collections.Generic;
+using MaterialDesignColors;
+using MahMaterialDragablzMashUp;
+using System.Linq;
 
 namespace UI
 {
@@ -31,6 +36,8 @@ namespace UI
         private RoomsViewModel _roomsViewModel;
         private MessagesViewModel _messagesViewModel;
         private NewRoomsViewModel _newRoomsViewModel;
+        private BLL.DTO_Enteties.UserInfo _user;
+        
         #endregion
 
         #region Public properties
@@ -75,13 +82,28 @@ namespace UI
         }
         #endregion
 
+        
         public MainWindow(BLLClass bll)
         {
             InitializeComponent();
             _bll = bll;
-
+            //
+            _user = _bll.GetUserInfo();
+            UserAvatarChangingBox.ImageSource = Util.ImageToImageSource(_user.Photo);
+            UserFullname.Text = _user.Name + " " + _user.Surname;
+            //
+            Swatches = new SwatchesProvider().Swatches.OrderBy(s => s.Name);
+            ThemePrimaryList.ItemsSource = Swatches;
+            ThemeAccentList.ItemsSource = Swatches.Where(s => s.IsAccented);
             _roomsViewModel = new RoomsViewModel(Room_Click, _bll.GetUserInfo().Id);
             _roomsViewModel.Load(_bll.GetInfosAboutAllUserRooms());
+            string currentP = Application.Current.Resources.MergedDictionaries.FirstOrDefault(m => m.Source.OriginalString.Contains(@"/Primary/")).Source.OriginalString;
+            ThemePrimaryList.SelectedItem = Swatches.FirstOrDefault(s => currentP.Contains(s.Name));
+            string currentA = Application.Current.Resources.MergedDictionaries.FirstOrDefault(m => m.Source.OriginalString.Contains(@"/Accent/")).Source.OriginalString;
+            ThemeAccentList.SelectedItem = Swatches.FirstOrDefault(s => currentA.Contains(s.Name));
+            //
+            _roomsViewModel = new RoomsViewModel(_bll.GetInfosAboutAllUserRooms(), Room_Click);
+
             roomsList.DataContext = _roomsViewModel;
 
             _newRoomsViewModel = new NewRoomsViewModel(AddRoom_Click);
@@ -178,7 +200,14 @@ namespace UI
         private void UserDetails_Button_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new UserInfoDialog(_bll);
-            DialogHost.Show(dialog, "MainWindow");
+            DialogHost.Show(dialog, "MainWindow", new DialogClosingEventHandler(UserDetailUpdate));
+        }
+
+        private void UserDetailUpdate(object sender, RoutedEventArgs e)
+        {
+            _user = _bll.GetUserInfo();
+            UserAvatarChangingBox.ImageSource = Util.ImageToImageSource(_user.Photo);
+            UserFullname.Text = _user.Name + " " + _user.Surname;
         }
 
         private void MainWindow_Closed(object sender, EventArgs e)
@@ -240,6 +269,46 @@ namespace UI
         private void Button_Click_3(object sender, RoutedEventArgs e)
         {
             _roomsViewModel.Update(_bll.GetInfosAboutAllUserRooms());
+        }
+
+        #region Palette block
+        private static void ApplyBase(bool isDark)
+        {
+            new PaletteHelper.PaletteHelper().SetLightDark(isDark);
+        }
+
+        public IEnumerable<Swatch> Swatches { get; }
+
+        private static void ApplyPrimary(Swatch swatch)
+        {
+            new PaletteHelper.PaletteHelper().ReplacePrimaryColor(swatch);
+        }
+        private static void ApplyAccent(Swatch swatch)
+        {
+            new PaletteHelper.PaletteHelper().ReplaceAccentColor(swatch);
+        }
+        #endregion
+
+        private void ToggleButton_StatusChanged(object sender, RoutedEventArgs e)
+        {
+            ApplyBase((bool)((System.Windows.Controls.Primitives.ToggleButton)sender).IsChecked);
+        }
+
+        private void ThemePrimaryList_DropDownClosed(object sender, EventArgs e)
+        {
+            ApplyPrimary((Swatch)ThemePrimaryList.SelectedItem);
+        }
+
+        private void ThemeAccentList_DropDownClosed(object sender, EventArgs e)
+        {
+            ApplyAccent((Swatch)ThemeAccentList.SelectedItem);
+        }
+
+        private void LogOut_Click(object sender, RoutedEventArgs e)
+        {
+            Authorization newWindow = new Authorization();
+            newWindow.Show();
+            Close();    
         }
     }
 }

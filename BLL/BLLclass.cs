@@ -363,7 +363,7 @@ namespace BLL
         public IEnumerable<RoomInfoForRoomInfoBox> GetInfosAboutAllUserRooms()
         {
             return _dal.Users.GetAll().First(u => u.Id == AuthenticatedUser.Id).
-                Rooms.Select(r => new RoomInfoForRoomInfoBox
+                Rooms?.Select(r => new RoomInfoForRoomInfoBox
                 {
                     Id = r.Id,
                     AmountOfUnreadedMsgs = GetAmountOfUnreadedMessages(r.Id),
