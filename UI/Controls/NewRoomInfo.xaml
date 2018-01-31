@@ -28,8 +28,8 @@
 
             <StackPanel Grid.Row="1" Margin="8,4,8,4">
                 <TextBlock Text="{Binding Path=GenreName, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
-                           Foreground="{DynamicResource PrimaryHueMidBrush}"
-                           FontSize="10" Margin="0,0,50,0" TextTrimming="CharacterEllipsis"></TextBlock>
+                           Foreground="{DynamicResource PrimaryHueLightBrush}"
+                           FontSize="10" Margin="0,0,50,0" TextTrimming="CharacterEllipsis" Opacity="0.9"></TextBlock>
 
                 <TextBlock Text="{Binding Path=Name, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
                            Foreground="{DynamicResource PrimaryHueLightBrush}"
@@ -37,7 +37,7 @@
             </StackPanel>
 
             <Expander Grid.Column="2" HorizontalAlignment="Stretch"
-                      Header="Description" Foreground="{DynamicResource MaterialDesignBody}">
+                      Header="Description" Foreground="{DynamicResource PrimaryHueMidBrush}">
                 <TextBlock Opacity="0.7" Margin="20 0 20 5" TextWrapping="Wrap"
                             Text="{Binding Path=Description, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>
             </Expander>

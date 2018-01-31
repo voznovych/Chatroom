@@ -8,7 +8,6 @@ using System.Windows.Threading;
 using UI.Controls;
 using UI.ViewModels;
 using System.Windows.Input;
-using System.Collections.Generic;
 using MaterialDesignColors;
 using MahMaterialDragablzMashUp;
 using System.Linq;
@@ -95,20 +94,18 @@ namespace UI
             Swatches = new SwatchesProvider().Swatches.OrderBy(s => s.Name);
             ThemePrimaryList.ItemsSource = Swatches;
             ThemeAccentList.ItemsSource = Swatches.Where(s => s.IsAccented);
-            _roomsViewModel = new RoomsViewModel(Room_Click, _bll.GetUserInfo().Id);
-            _roomsViewModel.Load(_bll.GetInfosAboutAllUserRooms());
             string currentP = Application.Current.Resources.MergedDictionaries.FirstOrDefault(m => m.Source.OriginalString.Contains(@"/Primary/")).Source.OriginalString;
             ThemePrimaryList.SelectedItem = Swatches.FirstOrDefault(s => currentP.Contains(s.Name));
             string currentA = Application.Current.Resources.MergedDictionaries.FirstOrDefault(m => m.Source.OriginalString.Contains(@"/Accent/")).Source.OriginalString;
             ThemeAccentList.SelectedItem = Swatches.FirstOrDefault(s => currentA.Contains(s.Name));
-            //
-            _roomsViewModel = new RoomsViewModel(_bll.GetInfosAboutAllUserRooms(), Room_Click);
-
+            
+            _roomsViewModel = new RoomsViewModel(Room_Click, _user.Id);
+            _roomsViewModel.Load(_bll.GetInfosAboutAllUserRooms());
             roomsList.DataContext = _roomsViewModel;
 
             _newRoomsViewModel = new NewRoomsViewModel(AddRoom_Click);
 
-            _messagesViewModel = new MessagesViewModel(_bll.GetUserInfo().Id);
+            _messagesViewModel = new MessagesViewModel(_user.Id);
             messagesList.DataContext = _messagesViewModel;
 
             _refreshRoomsTimer = new DispatcherTimer()

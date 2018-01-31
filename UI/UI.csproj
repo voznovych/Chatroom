@@ -98,7 +98,6 @@
     <Compile Include="ViewModels\NewRoomInfoViewModel.cs" />
     <Compile Include="ViewModels\NewRoomsViewModel.cs" />
     <Compile Include="Palets\PaletteHelper.cs" />
-    <Compile Include="ViewModels\MessageViewModel.cs" />
     <Compile Include="ViewModels\RoomInfoViewModel.cs" />
     <Compile Include="ViewModels\RoomsViewModel.cs" />
     <Page Include="Authorization.xaml">
