@@ -19,7 +19,7 @@
         TextOptions.TextFormattingMode="Ideal"
         TextOptions.TextRenderingMode="Auto"
         Background="{DynamicResource MaterialDesignPaper}"
-        FontFamily="{DynamicResource MaterialDesignFont}" Closed="MainWindow_Closed">
+        FontFamily="{DynamicResource MaterialDesignFont}" Closed="MainWindow_Closed" PreviewKeyDown="MainWindow_PreviewKeyDown" >
 
     <Window.Resources>
         <ResourceDictionary>

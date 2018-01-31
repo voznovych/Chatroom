@@ -36,7 +36,7 @@ namespace UI
         private MessagesViewModel _messagesViewModel;
         private NewRoomsViewModel _newRoomsViewModel;
         private BLL.DTO_Enteties.UserInfo _user;
-        
+
         #endregion
 
         #region Public properties
@@ -81,7 +81,7 @@ namespace UI
         }
         #endregion
 
-        
+
         public MainWindow(BLLClass bll)
         {
             InitializeComponent();
@@ -98,7 +98,7 @@ namespace UI
             ThemePrimaryList.SelectedItem = Swatches.FirstOrDefault(s => currentP.Contains(s.Name));
             string currentA = Application.Current.Resources.MergedDictionaries.FirstOrDefault(m => m.Source.OriginalString.Contains(@"/Accent/")).Source.OriginalString;
             ThemeAccentList.SelectedItem = Swatches.FirstOrDefault(s => currentA.Contains(s.Name));
-            
+
             _roomsViewModel = new RoomsViewModel(Room_Click, _user.Id);
             _roomsViewModel.Load(_bll.GetInfosAboutAllUserRooms());
             roomsList.DataContext = _roomsViewModel;
@@ -245,6 +245,10 @@ namespace UI
 
         private void SendMessageButton_Click(object sender, RoutedEventArgs e)
         {
+            SendMessage();
+        }
+        private void SendMessage()
+        {
             if (SelectedRoom != null)
             {
                 var text = MessageTextBox.Text.Trim();
@@ -256,7 +260,6 @@ namespace UI
                 }
             }
         }
-
         private void MessageSearchTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
             _messagesViewModel.Filter(MessageSearchTextBox.Text);
@@ -308,7 +311,15 @@ namespace UI
             _refreshLastVisitDate.Stop();
             Authorization newWindow = new Authorization();
             newWindow.Show();
-            Close();    
+            Close();
+        }
+
+        private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                SendMessage();
+            }
         }
     }
 }

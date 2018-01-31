@@ -33,7 +33,7 @@ namespace UI.ViewModels
             };
             _viewSource.Filter += Filter;
             _filter = String.Empty;
-            _viewSource.SortDescriptions.Add(new SortDescription("Message.Message.Date", ListSortDirection.Descending));
+            _viewSource.SortDescriptions.Add(new SortDescription("Message.Message.DateOfSend", ListSortDirection.Ascending));
 
             _userId = userId;
         }
