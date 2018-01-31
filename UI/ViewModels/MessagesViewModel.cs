@@ -41,8 +41,16 @@ namespace UI.ViewModels
         private void Add(MessageInfoForMessageInfoCard message)
         {
             var rivm = new MessageInfViewModel(message);
+            var msgCard = new MessageInfoCard(rivm, message.Sender.Id == _userId);
             _messagesInfViewModels.Add(rivm);
-            _messageCards.Add(new MessageInfoCard(rivm, message.Sender.Id == _userId));
+            _messagesInfViewModels = _messagesInfViewModels.OrderBy(m => m.DateOfSend).ToList();
+            int position = _messagesInfViewModels.FindIndex(m => m.Message.Id == message.Id);
+            if (position > 0 && _messagesInfViewModels[position - 1].Message.Sender.Id == message.Sender.Id)
+            {
+                msgCard.SenderName.Visibility = System.Windows.Visibility.Collapsed;
+                _messageCards.First(m => m.Message.Message.Id == _messagesInfViewModels[position - 1].Message.Id).SenderAvatar.Visibility = System.Windows.Visibility.Hidden;
+            }
+            _messageCards.Add(msgCard);
         }
         
         private void Filter(object sender, FilterEventArgs e)
