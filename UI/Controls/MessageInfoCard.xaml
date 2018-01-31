@@ -16,7 +16,7 @@
                 <ColumnDefinition Width="45"/>
             </Grid.ColumnDefinitions>
 
-            <Ellipse Grid.Column="0" Margin="2,4,8,4" Height="25" Width="25" VerticalAlignment="Top">
+            <Ellipse x:Name="SenderAvatar" Grid.Column="0" Margin="2,4,8,4" Height="25" Width="25" VerticalAlignment="Top">
                 <Ellipse.Fill>
                     <ImageBrush ImageSource="{Binding Path=Photo}"></ImageBrush>
                 </Ellipse.Fill>
@@ -33,7 +33,7 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Text="{Binding Path=FullName, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                    <TextBlock x:Name="SenderName" Grid.Row="0" Text="{Binding Path=FullName, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
                     Foreground="{DynamicResource PrimaryHueLightForegroundBrush}" FontSize="12" FontWeight="Bold"
                     VerticalAlignment="Center" HorizontalAlignment="Left" Opacity="0.9" TextTrimming="CharacterEllipsis"></TextBlock>
 

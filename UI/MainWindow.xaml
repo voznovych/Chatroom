@@ -90,12 +90,12 @@
             </materialDesign:DrawerHost.LeftDrawerContent>
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="200" MaxWidth="400" MinWidth="200"/>
+                    <ColumnDefinition Width="200" MaxWidth="450" MinWidth="200"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Grid Grid.Column="0">
+                <Grid x:Name="RoomsGrid" Grid.Column="0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
