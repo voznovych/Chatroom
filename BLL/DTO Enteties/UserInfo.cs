@@ -2,6 +2,7 @@
 {
     public class UserInfo
     {
+        public int Id { get; set; }
         public System.Drawing.Image Photo { get; set; }
         public string Login { get; set; }
         public string Password { get; set; }

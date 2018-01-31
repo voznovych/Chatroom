@@ -63,7 +63,8 @@
     <Compile Include="DTO Enteties\GenreDTO.cs" />
     <Compile Include="DTO Enteties\MessageDTO.cs" />
     <Compile Include="DTO Enteties\RoomDTO.cs" />
-    <Compile Include="DTO Enteties\RoomInfo.cs" />
+    <Compile Include="DTO Enteties\RoomInfoBox\RoomInfoForNewRoomCard.cs" />
+    <Compile Include="DTO Enteties\RoomInfoBox\RoomInfoForRoomInfoBox.cs" />
     <Compile Include="DTO Enteties\SexDTO.cs" />
     <Compile Include="DTO Enteties\UserDTO.cs" />
     <Compile Include="DTO Enteties\UserInfo.cs" />

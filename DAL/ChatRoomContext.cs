@@ -100,6 +100,14 @@ namespace DAL
 
     public class User
     {
+        public User()
+        {
+            Messages = new HashSet<Message>();
+            Rooms = new HashSet<Room>();
+            CreatedRooms = new HashSet<Room>();
+            VisitInfos = new HashSet<VisitInfo>();
+        }
+
         public int Id { get; set; }
         public string Login { get; set; }
         public string Password { get; set; }
@@ -126,6 +134,13 @@ namespace DAL
 
     public class Room
     {
+        public Room()
+        {
+            Messages = new HashSet<Message>();
+            Users = new HashSet<User>();
+            VisitInfos = new HashSet<VisitInfo>();
+        }
+
         public int Id { get; set; }
         public int CreatorId { get; set; }
         public virtual User Creator { get; set; }
@@ -157,6 +172,10 @@ namespace DAL
 
     public class Genre
     {
+        public Genre()
+        {
+            Rooms = new HashSet<Room>();
+        }
         public int Id { get; set; }
         public string Name { get; set; }
 
@@ -166,6 +185,10 @@ namespace DAL
 
     public class Sex
     {
+        public Sex()
+        {
+            Users = new HashSet<User>();
+        }
         public int Id { get; set; }
         public string Name { get; set; }
 
@@ -175,6 +198,10 @@ namespace DAL
 
     public class Country
     {
+        public Country()
+        {
+            Users = new HashSet<User>();
+        }
         public int Id { get; set; }
         public string Name { get; set; }
 
@@ -184,6 +211,10 @@ namespace DAL
 
     public class UserStatus
     {
+        public UserStatus()
+        {
+            Users = new HashSet<User>();
+        }
         public int Id { get; set; }
         public string Name { get; set; }
 

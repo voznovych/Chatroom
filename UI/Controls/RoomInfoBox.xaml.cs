@@ -30,6 +30,11 @@ namespace UI
             get { return _isSelected; }
             set
             {
+                if (value && !_isSelected)
+                {
+                    _click?.Invoke(this);
+                }
+
                 IsSelectedRect.Visibility = value ? Visibility.Visible : Visibility.Hidden;
                 _isSelected = value;
             }
@@ -48,11 +53,7 @@ namespace UI
 
         private void UserControl_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (!IsSelected)
-            {
-                IsSelected = true;
-                _click?.Invoke(this);
-            }
+            IsSelected = true;
         }
     }
 }

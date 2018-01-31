@@ -41,9 +41,6 @@
                 <Run FontWeight="Bold" FontSize="12" Foreground="{DynamicResource SecondaryAccentBrush}"
                      Text="{Binding Path=SenderName, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"></Run>
                 
-                <Run FontWeight="Bold" FontSize="12" Foreground="{DynamicResource SecondaryAccentBrush}"
-                     Text=": "></Run>
-                
                 <Run Foreground="{DynamicResource PrimaryHueMidBrush}" Text="{Binding Path=Text, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"></Run>
             </TextBlock>
         </Grid>

@@ -10,12 +10,19 @@ using UI.Domain;
 
 namespace UI.Controls
 {
+    enum Operation
+    {
+        Create,
+        Update,
+    }
     /// <summary>
     /// Interaction logic for CreateRoomDialog.xaml
     /// </summary>
     public partial class RoomInfoDialog : UserControl
     {
         private readonly BLLClass _bll;
+        private Operation _op;
+        private RoomDTO _room;
 
         private System.Drawing.Image _photo;
         public System.Drawing.Image Photo
@@ -41,20 +48,26 @@ namespace UI.Controls
             Photo = Util.ByteArrayToImage(File.ReadAllBytes("Resources/if_photo_icon.jpg"));
             GenreComboBox.ItemsSource = _bll.GetAllGenres();
             GenreComboBox.DisplayMemberPath = "Name";
+
+            _op = Operation.Create;
         }
-        public RoomInfoDialog(BLLClass bll, RoomInfo room)
+        public RoomInfoDialog(BLLClass bll, RoomDTO room)
         {
             InitializeComponent();
             TextBlockTitle.Text = "ROOM";
             _bll = bll;
+            _room = room;
 
             GenreComboBox.ItemsSource = _bll.GetAllGenres();
             GenreComboBox.DisplayMemberPath = "Name";
 
             Photo = room.Photo ?? Util.ByteArrayToImage(File.ReadAllBytes("Resources/if_photo_icon.jpg"));
             NameTextBox.Text = room.Name;
-            //DescriptionTextBox.Text = room.Descrip
-            //GenreComboBox.SelectedIndex = GetIndexOfGenre(room.Genre);
+            DescriptionTextBox.Text = room.Description;
+            GenreComboBox.SelectedIndex = GetIndexOfGenre(room.Genre);
+            IsPrivateChechBox.IsChecked = room.IsPrivate;
+
+            _op = Operation.Update;
         }
 
         private int GetIndexOfGenre(GenreDTO genre)
@@ -124,6 +137,14 @@ namespace UI.Controls
                 Genre = GenreComboBox.SelectedItem as GenreDTO
             };
         }
+        private void SetRoomDTO()
+        {
+            _room.Name = NameTextBox.Text;
+            _room.Description = DescriptionTextBox.Text;
+            _room.Photo = this.Photo;
+            _room.IsPrivate = IsPrivateChechBox.IsChecked.Value;
+            _room.GenreId = (GenreComboBox.SelectedItem as GenreDTO).Id;
+        }
         private void CreateRoom()
         {
             if (!IsSetedRequiredFields())
@@ -133,12 +154,29 @@ namespace UI.Controls
 
             _bll.CreateRoom(GetCreateRoomData());            
         }
+        private void UpdateRoom()
+        {
+            if (!IsSetedRequiredFields())
+            {
+                throw new Exception("Some of required fields are not setted!");
+            }
+
+            SetRoomDTO();
+            _bll.UpdateRoom(_room);
+        }
 
         private void AcceptButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             try
             {
-                CreateRoom();
+                if (_op == Operation.Create)
+                {
+                    CreateRoom();
+                }
+                else if (_op == Operation.Update)
+                {
+                    UpdateRoom();
+                }
                 DialogHost.CloseDialogCommand.Execute(null, null);
             }
             catch (Exception ex)
